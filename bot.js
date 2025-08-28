@@ -452,3 +452,4 @@ function restoreHistory(){
 function historyEmpty(){ const arr = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); return arr.length === 0; }
 function saveFlowState(){ localStorage.setItem(FLOW_KEY, JSON.stringify(flow)); }
 function loadFlowState(){ try { return JSON.parse(localStorage.getItem(FLOW_KEY) || "null"); } catch { return null; } }
+
