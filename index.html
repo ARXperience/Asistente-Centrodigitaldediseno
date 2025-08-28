@@ -23,7 +23,6 @@
     @keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
 
     body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;display:flex;flex-direction:column;height:100vh;transition:background .3s,color .3s}
-
     .top{padding:12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);position:relative;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent 60%)}
     .top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--rainbow);background-size:200% 200%;animation:moveGradient 8s linear infinite;opacity:.7;filter:saturate(.9) blur(.3px)}
     .brand{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:var(--rainbow);background-size:200% 200%;animation:moveGradient 8s linear infinite;font-weight:800;color:#0b0f14;box-shadow:0 0 0 1px #0002 inset,0 1px 6px rgba(0,0,0,.15)}
@@ -42,8 +41,13 @@
 
     .bubble{max-width:80%;padding:12px 14px;border-radius:var(--radius);line-height:1.55;border:1px solid var(--border)}
     .assistant .bubble{
-      background:var(--surface);border:2px solid transparent;background-clip:padding-box,border-box;background-origin:border-box;
-      background-image:linear-gradient(var(--surface),var(--surface)),var(--rainbow);background-size:200% 200%;animation:moveGradient 12s linear infinite;
+      background:var(--surface);
+      border:2px solid transparent;
+      background-clip:padding-box,border-box;
+      background-origin:border-box;
+      background-image:linear-gradient(var(--surface),var(--surface)),var(--rainbow);
+      background-size:200% 200%;
+      animation:moveGradient 12s linear infinite;
       box-shadow:0 0 0 1px #0001 inset,0 8px 20px rgba(0,0,0,.08)
     }
     .user .bubble{background:var(--user);border-color:var(--border);box-shadow:0 0 0 1px #0002 inset}
@@ -58,10 +62,7 @@
     .composer{max-width:var(--maxw);margin:0 auto;display:flex;gap:8px}
     .input{flex:1;border:1px solid var(--border);border-radius:14px;padding:12px;color:var(--text);background:#fdfdfd;outline:none}
     [data-theme="dark"] .input{background:#0f1720}
-    .send{background:var(--accent);border:none;padding:0 18px;border-radius:12px;font-weight:700;cursor:pointer;color:#fff;box-shadow:0 8px 18px rgba(16,163,127,.22)}
-
-    .mic{border:1px solid var(--border);background:linear-gradient(var(--surface),var(--surface)) padding-box, var(--rainbow) border-box;border-radius:12px;padding:0 14px;font-weight:700;cursor:pointer}
-    .mic.active{background:var(--accent);color:#fff;border-color:transparent}
+    .send{background:var(--accent);border:none;padding:0 14px;border-radius:12px;font-weight:700;cursor:pointer;color:#fff;box-shadow:0 8px 18px rgba(16,163,127,.22)}
 
     .bubble h1,.bubble h2,.bubble h3{margin:6px 0 8px;font-weight:700}
     .bubble h1{font-size:18px}.bubble h2{font-size:16px}.bubble h3{font-size:15px}
@@ -77,12 +78,28 @@
     .dot{width:6px;height:6px;border-radius:50%;background:var(--muted);opacity:.6;animation:blink 1.2s infinite}
     .dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
 
-    /* Intro overlay (bola difuminada) */
+    .bar{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+    .ghost-sm{border:1px solid var(--border);background:transparent;color:var(--text);padding:6px 10px;border-radius:10px;font-size:13px;cursor:pointer}
+
+    /* Botón de tema con borde arcoíris */
+    #themeToggle{
+      position:relative;border:1px solid transparent;border-radius:10px;
+      background:linear-gradient(var(--surface),var(--surface)) padding-box, var(--rainbow) border-box;
+      background-size:200% 200%;animation:moveGradient 8s linear infinite;
+      color:var(--text);box-shadow:0 1px 6px rgba(0,0,0,.08);
+      transition:transform .15s ease,filter .15s ease
+    }
+    [data-theme="dark"] #themeToggle{box-shadow:0 1px 6px rgba(0,0,0,.35)}
+    #themeToggle:hover{transform:translateY(-1px);filter:brightness(1.03)}
+    #themeToggle:active{transform:translateY(0);filter:brightness(.98)}
+    #themeToggle:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(71,178,255,.18)}
+
+    /* Intro full-screen (bola de humo con borde difuso, sin sombras) */
     .intro-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:#fff;pointer-events:none;opacity:1;transition:opacity .8s ease}
     .intro-overlay.hide{opacity:0}
-    .intro-video{width:min(84vmin,720px);height:min(84vmin,720px);object-fit:cover;-webkit-mask-image:radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 66%, rgba(0,0,0,0) 84%);mask-image:radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 66%, rgba(0,0,0,0) 84%)}
-    @media (max-width:767px){.intro-video{width:min(86vmin,540px);height:min(86vmin,540px)}}
-    @media (prefers-reduced-motion:reduce){.intro-overlay{display:none!important}}
+    .intro-video{width:min(86vmin,720px);height:min(86vmin,720px);object-fit:cover;-webkit-mask-image:radial-gradient(circle at 50% 50%,rgba(0,0,0,1) 66%,rgba(0,0,0,0) 84%);mask-image:radial-gradient(circle at 50% 50%,rgba(0,0,0,1) 66%,rgba(0,0,0,0) 84%)}
+    @media (max-width:767px){ .intro-video{width:min(86vmin,540px);height:min(86vmin,540px)} }
+    @media (prefers-reduced-motion:reduce){ .intro-overlay{display:none !important} }
   </style>
 </head>
 <body>
@@ -104,29 +121,26 @@
         <span>Escribiendo</span><div class="dot"></div><div class="dot"></div><div class="dot"></div>
       </div>
 
-      <!-- Chips -->
       <div class="chips">
         <button class="chip" data-q="Servicios">Servicios</button>
         <button class="chip" data-q="Páginas web">Páginas web</button>
-        <button class="chip" data-q="Contenido para redes">Contenido</button>
-        <button class="chip" data-q="Campañas Ads">Ads</button>
-        <button class="chip" data-q="Automatizaciones con IA">Automatizaciones IA</button>
-        <button class="chip" data-q="Bots y Asistentes IA">Bots IA</button>
+        <button class="chip" data-q="Automatizaciones con IA">Automatizaciones</button>
         <button class="chip" data-q="Cotizar">Cotización</button>
-        <button class="chip" data-q="Crear agente gratis">Crear agente gratis</button>
+        <button class="chip" data-q="Crear agente gratis">Agente gratis</button>
+        <button class="chip" data-q="Marketing con IA">Marketing con IA</button>
       </div>
     </div>
   </div>
 
   <div class="composer-wrap">
     <div class="composer">
-      <input id="input" class="input" placeholder="Escribe tu mensaje…" />
-      <button id="mic" class="mic">🎤 Hablar</button>
+      <input id="input" class="input" placeholder="Escribe o dicta tu mensaje…" />
+      <button id="mic" class="send" title="Hablar">🎤 Hablar</button>
       <button id="send" class="send">Enviar</button>
     </div>
   </div>
 
-  <!-- Intro -->
+  <!-- Intro: selecciona video por dispositivo -->
   <div id="intro" class="intro-overlay" aria-hidden="true">
     <video id="introVideo" class="intro-video" autoplay muted playsinline preload="auto">
       <source src="assets/Intro.webm" type="video/webm" media="(min-width:768px)">
@@ -135,9 +149,8 @@
   </div>
 
   <script src="bot.js"></script>
-
   <script>
-    // Tema
+    // Toggle de tema (claro por defecto)
     (function(){
       const btn = document.getElementById('themeToggle');
       btn.addEventListener('click', () => {
@@ -148,23 +161,20 @@
       });
     })();
 
-    // Intro
+    // Control de intro (ocultar al terminar o por timeout)
     (function(){
       const overlay = document.getElementById('intro');
       const video   = document.getElementById('introVideo');
       const reduce  = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (!overlay || !video || reduce){ if (overlay) overlay.remove(); return; }
-      const isMobile = window.matchMedia('(max-width:767px)').matches;
-      const src = isMobile ? 'assets/Antro.webm' : 'assets/Intro.webm';
-      const s = document.createElement('source'); s.src = src; s.type='video/webm';
-      video.innerHTML=''; video.appendChild(s);
-      video.muted = true; video.play().catch(()=>{});
-      const t = setTimeout(hide, 6500);
-      video.addEventListener('ended', hide);
-      video.addEventListener('error', hide);
-      function hide(){ clearTimeout(t); overlay.classList.add('hide'); setTimeout(()=>overlay.remove(), 800); }
+      video.muted = true;
+      video.play().catch(()=>{});
+      const SAFE_TIMEOUT_MS = 6500; // ajusta a la duración real
+      const t = setTimeout(hideIntro, SAFE_TIMEOUT_MS);
+      video.addEventListener('ended', hideIntro);
+      video.addEventListener('error', hideIntro);
+      function hideIntro(){ clearTimeout(t); overlay.classList.add('hide'); setTimeout(()=>overlay.remove(),700); }
     })();
   </script>
 </body>
 </html>
-
