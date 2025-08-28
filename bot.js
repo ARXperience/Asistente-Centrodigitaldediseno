@@ -1,4 +1,4 @@
-// bot.js — Catálogo unificado + botones + flujo de cotización + CTA + voz + guardado en servidor
+// bot.js — Catálogo unificado + flujo de cotización + CTA + chips + botones + autoscroll + voz con auto-envío
 
 /***** DOM *****/
 const msgs  = document.getElementById('messages');
@@ -13,24 +13,22 @@ const STORAGE_KEY = 'cdd_chat_history_v1';
 const QUOTE_KEY   = 'cdd_quote_leads_v1';
 const FLOW_KEY    = 'cdd_quote_flow_state_v1';
 
-/***** Contactos *****/
-const OFICIAL_PHONE = "573028618806";        // WhatsApp donde llega la info
-const CTA_PHONE     = "573202608864";        // Tel. mostrado en CTA
+/***** Contacto *****/
+const OFICIAL_PHONE = "573028618806";                 // WhatsApp al que llega la info
+const CTA_PHONE     = "573202608864";                 // Teléfono mostrado en CTA
 const OFICIAL_MAIL  = "centrodigitaldediseno@gmail.com";
 
-/***** Estado flujo *****/
-let flow = loadFlowState() || { activo:false, paso:0, datos:{nombre:"",servicios:"",empresa:"",telefono:""} };
+/***** Estado *****/
+let flow = loadFlowState() || { activo:false, paso:0, datos:{ nombre:"", servicios:"", empresa:"", telefono:"" } };
 
 /***** Util *****/
 const CTA = `\n\n**¿Quieres cotizar tu proyecto?** Escribe **cotizar** o contáctanos: **+${CTA_PHONE}** · **${OFICIAL_MAIL}**`;
 const BTN = "display:inline-block;margin:6px 8px 0 0;background:#10a37f;color:#fff;text-decoration:none;padding:10px 14px;border-radius:12px;font-weight:700;font-size:14px";
 
-/***** Catálogo *****/
+/***** Catálogo (servicios mezclados, ordenados por categoría) *****/
 const KB = {
   overview:
-`### Servicios (catálogo)
-Elige una categoría:
-
+`### Accesos rápidos
 <a href="#" class="inline-cta" data-q="Páginas web" style="${BTN}">🖥️ Páginas web</a>
 <a href="#" class="inline-cta" data-q="Branding" style="${BTN}">🎨 Branding</a>
 <a href="#" class="inline-cta" data-q="Contenido para redes" style="${BTN}">📱 Contenido</a>
@@ -48,74 +46,104 @@ Elige una categoría:
 <a href="#" class="inline-cta" data-q="Cotizar" style="${BTN}">💬 Cotizar ahora</a>
 ${CTA}`,
 
+  // Web/Marketing Digital
   web:
 `### Páginas web (moderno + conversión)
-- Landing, multipágina y e-commerce.
-- Performance, SEO técnico y analítica.
-- Integración con WhatsApp/CRM/automatizaciones.${CTA}`,
+1. Diseño Web moderno y optimizado (landing, multipágina, e-commerce)  
+2. Integración con WhatsApp/CRM, analítica y SEO técnico  
+3. Performance y mejores prácticas Core Web Vitals${CTA}`,
+
   branding:
-`### Branding & Marca
-- Logo, sistema visual y manual de marca.
-- Refresh y lineamientos aplicados.${CTA}`,
-  fotografia:
-`### Fotografía de producto
-- Foto y micro-video para catálogo/ads.
-- Retoque y entregables por plataforma.${CTA}`,
+`### Branding y diseño de marca
+1. Logos, identidad visual y sistema de marca  
+2. Manual de marca y aplicaciones  
+3. Refresh/Rediseño de identidad${CTA}`,
+
   contenido:
 `### Contenido para redes
-- Reels/TikTok/Shorts, carruseles, estáticos.
-- Guión, edición/motion y calendario editorial.${CTA}`,
+1. Creación de contenido visual (posts, carruseles)  
+2. Reels/TikTok/Shorts (guion + edición)  
+3. Calendario editorial y medición${CTA}`,
+
   social:
 `### Social Media Manager
-- Gestión de redes, moderación y reporting.
-- Optimización por cohortes; integración con paid.${CTA}`,
+1. Gestión de redes y comunidad  
+2. Crecimiento orgánico y reporting  
+3. Optimización de publicaciones y horarios${CTA}`,
+
   seo:
 `### SEO (web + social)
-- Auditoría técnica y on-page.
-- Estrategia de contenidos y descubrimiento.${CTA}`,
+1. Posicionamiento en buscadores y redes  
+2. Auditoría técnica, on-page y contenidos  
+3. Estrategia de keywords y backlinks${CTA}`,
+
   ads:
-`### Campañas Ads (Meta, Google, TikTok)
-- Creativo + segmentación, píxeles/CAPI.
-- Tests A/B y escalado por ROAS.${CTA}`,
+`### Campañas publicitarias (Ads)
+1. Meta Ads, Google Ads y TikTok Ads  
+2. Creativo, segmentación y medición  
+3. Testing A/B y escalado por ROAS${CTA}`,
+
   marketing:
 `### Estrategias de marketing & funnels
-- Embudos full-funnel; email/SMS/WA nurturing.
-- Dashboards de KPIs de adquisición y LTV.${CTA}`,
+1. Embudos de ventas y automatizaciones  
+2. Campañas full-funnel (tráfico → conversión)  
+3. Dashboards de KPIs${CTA}`,
+
+  fotografia:
+`### Fotografía de producto
+1. Foto y micro-video publicitario  
+2. Retoque y formatos por plataforma  
+3. Entregables para catálogos y ads${CTA}`,
+
+  // IA
   auto_ia:
 `### Automatizaciones con IA
-- Procesos y atención al cliente 24/7.
-- CRM, formularios, email/WA, Make/Zapier.${CTA}`,
+1. Procesos empresariales y atención al cliente  
+2. Integraciones Make/Zapier, email/WA/CRM  
+3. Scripts y flujos 24/7${CTA}`,
+
   bots_ia:
-`### Bots & Asistentes (mensajes y llamadas)
-- WhatsApp/IG/Messenger y asistentes por voz.
-- Calificación de leads + handoff a humano.${CTA}`,
+`### Bots y Asistentes (mensajes y llamadas)
+1. Asistentes virtuales en WhatsApp/IG/Messenger  
+2. Bots de llamadas con handoff a humano  
+3. Calificación de leads y CRM${CTA}`,
+
   contenido_ia:
 `### Contenido con IA (video e imagen)
-- Videos conceptuales/publicitarios/explicativos.
-- Generación de imágenes para campañas.${CTA}`,
+1. Videos conceptuales/publicitarios/explicativos  
+2. Generación de imágenes y assets creativos  
+3. Producción híbrida IA + edición profesional${CTA}`,
+
   embudos_ra:
-`### Embudos automatizados & Realidad Aumentada
-- Captura → calificación → conversión con IA.
-- Experiencias AR y medición.${CTA}`,
+`### Embudos automatizados y Realidad Aumentada
+1. Captura → nurturing → conversión con IA  
+2. Experiencias AR para promoción/retail  
+3. Medición y optimización${CTA}`,
+
   apps_premium:
 `### Apps Premium
-- Licencias (VPN, YouTube Premium, PhotoRoom…).
-- Onboarding y soporte a equipos.${CTA}`,
+1. Licencias (VPN, YouTube Premium, PhotoRoom, etc.)  
+2. Gestión de cuentas y soporte a equipos  
+3. Onboarding y buenas prácticas${CTA}`,
+
   mkt_ia:
 `### Marketing con IA
-- Análisis predictivo; personalización de campañas.
-- Testing continuo con modelos y datos propios.${CTA}`,
+1. Estrategias basadas en IA (análisis predictivo)  
+2. Personalización de campañas y audiencias  
+3. Experimentación continua con modelos${CTA}`,
+
   agente:
 `### Crea tu **agente gratis**
-Lanza un prototipo y pruébalo en tu web/WA.
+Lanza un prototipo y pruébalo en tu web o WhatsApp.
 
 <a href="https://gold-snail-248674.hostingersite.com/chatbot.html" target="_blank" style="${BTN}">🚀 Crear agente gratis</a>`,
+
   cotiz:
 `### Precios & cotización
-Trabajamos **por alcance y objetivos** (web/branding/IA/ads).
-1) Brief + llamada (15–20 min)
-2) Propuesta con entregables/tiempos/valor
-3) Arranque del Sprint 1
+Trabajamos **por alcance y objetivos** (web/branding/IA/ads).  
+1) Brief + llamada (15–20 min)  
+2) Propuesta con entregables/tiempos/valor  
+3) Arranque del Sprint 1  
 ${CTA}`
 };
 
@@ -129,7 +157,7 @@ if (historyEmpty()) {
 /***** Listeners *****/
 send?.addEventListener('click', () => {
   const txt = input.value.trim(); if (!txt) return;
-  input.value=""; userMsg(txt); route(txt);
+  input.value = ""; userMsg(txt); route(txt);
 });
 input?.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send?.click(); }
@@ -140,40 +168,79 @@ document.querySelectorAll('.chip').forEach(c=>{
 clear?.addEventListener('click', ()=>{
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(FLOW_KEY);
-  msgs.innerHTML=""; typing.style.display="none";
+  msgs.innerHTML = ""; typing.style.display="none";
   flow = { activo:false, paso:0, datos:{nombre:"",servicios:"",empresa:"",telefono:""} };
   botMsg("🧹 Historial limpio. ¿Escribes **cotizar** o vemos servicios?");
 });
-// botones inline dentro del chat
 msgs?.addEventListener('click', e=>{
-  const el = e.target.closest('[data-q].inline-cta'); 
-  if (el){ e.preventDefault(); const q = el.getAttribute('data-q')||''; if(q){ userMsg(q); route(q);} }
+  const el = e.target.closest('[data-q].inline-cta');
+  if (el){ e.preventDefault(); const q=el.getAttribute('data-q')||''; if(q){ userMsg(q); route(q);} }
 });
 
-/***** Voz continua *****/
-let rec=null, micActive=false;
+/***** Voz continua con auto-envío por silencio (1.5 s) *****/
+let rec = null, micActive = false;
+let voiceBuffer = "";
+let silenceTimer = null;
+const SILENCE_MS = 1500;
+
 (function setupVoice(){
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR || !micBtn) return;
-  rec = new SR(); rec.lang = 'es-ES'; rec.interimResults = true; rec.continuous = true;
-  rec.onresult = (ev)=>{
-    let finalText = '';
-    for (let i=ev.resultIndex; i<ev.results.length; i++){
-      const res = ev.results[i];
-      if (res.isFinal){ finalText += res[0].transcript.trim() + ' '; }
+
+  rec = new SR();
+  rec.lang = 'es-ES';
+  rec.interimResults = true;
+  rec.continuous = true;
+
+  rec.onresult = (ev) => {
+    const last = ev.results[ev.results.length - 1];
+    const isFinal = last.isFinal;
+    const partial = last[0]?.transcript || "";
+
+    if (isFinal) {
+      voiceBuffer = (voiceBuffer + " " + partial).trim();
+      input.value = voiceBuffer;
+    } else {
+      input.value = (voiceBuffer + " " + partial).trim();
     }
-    if (finalText){ input.value = ''; userMsg(finalText.trim()); route(finalText.trim()); }
+    scheduleAutoSend();
   };
-  rec.onend = ()=>{ if (micActive) try{ rec.start(); }catch(_){} };
+  rec.onend = () => { if (micActive) try{ rec.start(); }catch(_){} };
+  rec.onerror = () => { if (micActive) try{ rec.start(); }catch(_){} };
+
   micBtn.addEventListener('click', ()=>{
-    if (!micActive){ try{ rec.start(); micActive=true; micBtn.classList.add('active'); micBtn.textContent='🎤 Escuchando'; }catch(_){}
-    } else { rec.stop(); micActive=false; micBtn.classList.remove('active'); micBtn.textContent='🎤 Hablar'; }
+    if (!micActive){
+      voiceBuffer = ""; input.value = "";
+      try { rec.start(); micActive = true; micBtn.classList.add('active'); micBtn.textContent = '🎤 Escuchando'; } catch(_){}
+    } else {
+      try { rec.stop(); } catch(_){}
+      micActive = false; micBtn.classList.remove('active'); micBtn.textContent = '🎤 Hablar';
+      flushVoiceBuffer();
+    }
   });
+
+  function scheduleAutoSend(){
+    if (silenceTimer) clearTimeout(silenceTimer);
+    silenceTimer = setTimeout(()=>{ flushVoiceBuffer(); }, SILENCE_MS);
+  }
+  function flushVoiceBuffer(){
+    if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer=null; }
+    const text = (input.value || voiceBuffer || '').trim();
+    if (!text) return;
+    voiceBuffer = ""; input.value = "";
+    userMsg(text); route(text);
+  }
 })();
 
 /***** Router *****/
 function route(q){
-  if (/^cancelar$/i.test(q.trim())){ if (flow.activo){ flow={activo:false,paso:0,datos:{nombre:"",servicios:"",empresa:"",telefono:""}}; saveFlowState(); return botMsg("Flujo cancelado. Escribe **cotizar** para retomarlo."); } }
+  if (/^cancelar$/i.test(q.trim())) {
+    if (flow.activo){
+      flow = { activo:false, paso:0, datos:{nombre:"",servicios:"",empresa:"",telefono:""} };
+      saveFlowState();
+      return botMsg("Flujo cancelado. Escribe **cotizar** para retomarlo.");
+    }
+  }
   if (flow.activo){ handleCotizacion(q); return; }
 
   const qn = norm(q);
@@ -187,6 +254,7 @@ function route(q){
   if (/\bseo\b|posicionamiento/.test(qn)) return botMsg(KB.seo);
   if (/ads|camp[aá]ñas|anuncios|google|meta|tiktok/.test(qn)) return botMsg(KB.ads);
   if (/estrategias? de marketing|funnel|embudo|growth/.test(qn)) return botMsg(KB.marketing);
+
   if (/automatizaciones?.*ia/.test(qn)) return botMsg(KB.auto_ia);
   if (/bots?.*ia|asistentes?.*ia|llamadas?.*ia/.test(qn)) return botMsg(KB.bots_ia);
   if (/contenido.*ia|video.*ia|imagen.*ia|audiovisual.*ia/.test(qn)) return botMsg(KB.contenido_ia);
@@ -203,7 +271,7 @@ function route(q){
 
 /***** Flujo de Cotización *****/
 function startCotizacion(){
-  flow = { activo:true, paso:1, datos:{nombre:"", servicios:"", empresa:"", telefono:""} };
+  flow = { activo:true, paso:1, datos:{ nombre:"", servicios:"", empresa:"", telefono:"" } };
   saveFlowState();
   botMsg("¡Perfecto! Para cotizar necesito unos datos.\n\n1️⃣ ¿Cuál es tu **nombre completo**?\n\n*(Escribe `cancelar` para salir.)*");
 }
@@ -211,28 +279,31 @@ function handleCotizacion(respuesta){
   const text = respuesta.trim();
   switch(flow.paso){
     case 1:
-      flow.datos.nombre=text; flow.paso=2; saveFlowState();
+      flow.datos.nombre = text; flow.paso = 2; saveFlowState();
       botMsg(`Gracias, **${escapeHTML(text)}**.\n2️⃣ ¿Qué **servicios** te interesan? _Ej.: “Landing + branding + automatización WhatsApp”_`);
       break;
     case 2:
-      flow.datos.servicios=text; flow.paso=3; saveFlowState();
+      flow.datos.servicios = text; flow.paso = 3; saveFlowState();
       botMsg("3️⃣ ¿Cómo se llama tu **empresa o proyecto**?");
       break;
     case 3:
-      flow.datos.empresa=text; flow.paso=4; saveFlowState();
+      flow.datos.empresa = text; flow.paso = 4; saveFlowState();
       botMsg("4️⃣ ¿Cuál es tu **número de WhatsApp o teléfono**?");
       break;
     case 4:
       if (!isValidPhone(text)) return botMsg("Formato no válido. Ej.: `3001234567` o `+57 3001234567`.");
-      flow.datos.telefono=cleanPhone(text); finalizeQuote(); break;
+      flow.datos.telefono = cleanPhone(text);
+      finalizeQuote();
+      break;
     default:
-      flow={activo:false,paso:0,datos:{nombre:"",servicios:"",empresa:"",telefono:""}}; saveFlowState();
+      flow = { activo:false, paso:0, datos:{nombre:"",servicios:"",empresa:"",telefono:""} };
+      saveFlowState();
       botMsg("He reiniciado el flujo. Escribe **cotizar** para empezar.");
   }
 }
 function finalizeQuote(){
-  const leads = JSON.parse(localStorage.getItem(QUOTE_KEY)||"[]");
-  leads.push({ ...flow.datos, fecha:new Date().toISOString() });
+  const leads = JSON.parse(localStorage.getItem(QUOTE_KEY) || "[]");
+  leads.push({ ...flow.datos, fecha: new Date().toISOString() });
   localStorage.setItem(QUOTE_KEY, JSON.stringify(leads));
 
   const { nombre, servicios, empresa, telefono } = flow.datos;
@@ -260,32 +331,21 @@ Para **continuar con la cotización**, por favor **toca uno de estos botones**:
 
 > Si necesitas corregir algo, escribe **cotizar** para iniciar nuevamente.`;
 
-  flow={activo:false,paso:0,datos:{nombre:"",servicios:"",empresa:"",telefono:""}}; saveFlowState();
-  botMsg(resumen); 
+  flow = { activo:false, paso:0, datos:{nombre:"",servicios:"",empresa:"",telefono:""} };
+  saveFlowState();
+  botMsg(resumen);
   botMsg(KB.cotiz);
 
-  // === Guardar conversación completa en servidor ===
-  try { persistConversationToServer({ nombre, servicios, empresa, telefono }); } catch (e) { console.warn('No se pudo guardar la conversación:', e); }
+  try { persistConversationToServer({ nombre, servicios, empresa, telefono }); } catch(e) { console.warn('No se pudo guardar conversación:', e); }
 }
 
-/***** Guardado en servidor (PHP en /assets/save_conversation.php) *****/
+/***** Guardado en servidor (requiere assets/save_conversation.php) *****/
 function persistConversationToServer(lead){
-  const history = JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
-  const payload = {
-    when: new Date().toISOString(),
-    page: location.href,
-    userAgent: navigator.userAgent,
-    lead,
-    conversation: history     // [{role, text, t}]
-  };
-  // mismo dominio (Hostinger), no necesita CORS
-  fetch('assets/save_conversation.php', {
-    method: 'POST',
-    headers: { 'Content-Type':'application/json' },
-    body: JSON.stringify(payload)
-  }).then(r=>r.json()).then(res=>{
-    if (!res?.ok) console.warn('Guardado falló:', res);
-  }).catch(err=>console.warn('Error guardando:', err));
+  const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+  const payload = { when:new Date().toISOString(), page:location.href, userAgent:navigator.userAgent, lead, conversation: history };
+  fetch('assets/save_conversation.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) })
+    .then(r=>r.json()).then(res=>{ if(!res?.ok) console.warn('Guardado falló:',res); })
+    .catch(err=>console.warn('Error guardando:',err));
 }
 
 /***** Buscador difuso *****/
@@ -294,7 +354,7 @@ function smallSearch(q){
     [KB.web,["web","ecommerce","tienda","landing","sitio"]],
     [KB.branding,["branding","marca","logo","manual"]],
     [KB.fotografia,["foto","fotografia","fotografía","producto"]],
-    [KB.contenido,["contenido","reels","tiktok","shorts","post"]],
+    [KB.contenido,["contenido","reels","tiktok","shorts","post","posts"]],
     [KB.social,["social media","smm","gestion redes","gestión redes","community"]],
     [KB.seo,["seo","posicionamiento"]],
     [KB.ads,["ads","campañas","anuncios","google","meta","tiktok"]],
@@ -317,7 +377,7 @@ function smallSearch(q){
   return score>0 ? best : null;
 }
 
-/***** Render *****/
+/***** Render + markdown simple *****/
 function render(role, mdText){
   const row = document.createElement("div");
   row.className = "row " + (role === "assistant" ? "assistant" : "user");
@@ -341,7 +401,6 @@ function render(role, mdText){
 
   bub.innerHTML = html;
 
-  // Botón Copiar
   bub.querySelectorAll("pre").forEach(pre=>{
     const head=document.createElement("div"); head.className="code-head"; head.innerHTML=`<span>código</span>`;
     const btn=document.createElement("button"); btn.className="copy"; btn.textContent="Copiar";
@@ -355,9 +414,6 @@ function render(role, mdText){
 }
 function userMsg(text){ render("user", escapeHTML(text)); }
 function botMsg(text){ render("assistant", text); }
-function showTyping(v){ typing.style.display = v ? "flex" : "none"; }
-
-/***** Markdown mínimo *****/
 function mdToHTML(md){
   md = md.replace(/```([\s\S]*?)```/g, (_,code)=> `<pre><code>${escapeHTML(code.trim())}</code></pre>`);
   md = md.replace(/^### (.*)$/gim,'<h3>$1</h3>').replace(/^## (.*)$/gim,'<h2>$1</h2>').replace(/^# (.*)$/gim,'<h1>$1</h1>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+?)`/g,'<code>$1</code>');
@@ -373,17 +429,26 @@ function escapeHTML(s){return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<'
 function norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'').replace(/[^a-z0-9áéíóúñü\s]/g,' ').replace(/\s+/g,' ').trim();}
 
 /***** Validaciones *****/
-function isValidPhone(v){ const d=onlyDigits(v); return /^57\d{10}$/.test(d)||/^\d{10}$/.test(d); }
-function cleanPhone(v){ let d=onlyDigits(v); if (/^\d{10}$/.test(d)) d="57"+d; return d; }
+function isValidPhone(v){ const d = onlyDigits(v); return /^57\d{10}$/.test(d) || /^\d{10}$/.test(d); }
+function cleanPhone(v){ let d = onlyDigits(v); if (/^\d{10}$/.test(d)) d = "57"+d; return d; }
 function onlyDigits(s){ return (s||'').replace(/\D+/g,''); }
 
-/***** Persistencia *****/
-function saveToHistory(role,text){ const arr=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]"); arr.push({role,text,t:Date.now()}); localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }
-function restoreHistory(){
-  const arr=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]"); if (!arr.length) return;
-  arr.forEach(m=>{ m.role==='assistant'?botMsg(m.text):userMsg(m.text); });
-  const savedFlow = loadFlowState(); if (savedFlow?.activo){ flow=savedFlow; botMsg("Teníamos un **flujo de cotización** pendiente. ¿Deseas **continuar**? Escribe `cancelar` para salir."); }
+/***** Persistencia local *****/
+function saveToHistory(role, text){
+  const arr = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+  arr.push({ role, text, t: Date.now() });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
 }
-function historyEmpty(){ const arr=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]"); return arr.length===0; }
+function restoreHistory(){
+  const arr = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+  if (!arr.length) return;
+  arr.forEach(m => { m.role === 'assistant' ? botMsg(m.text) : userMsg(m.text); });
+  const savedFlow = loadFlowState();
+  if (savedFlow?.activo){
+    flow = savedFlow;
+    botMsg("Teníamos un **flujo de cotización** pendiente. ¿Deseas **continuar**? Escribe `cancelar` para salir.");
+  }
+}
+function historyEmpty(){ const arr = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); return arr.length === 0; }
 function saveFlowState(){ localStorage.setItem(FLOW_KEY, JSON.stringify(flow)); }
-function loadFlowState(){ try{ return JSON.parse(localStorage.getItem(FLOW_KEY)||"null"); }catch{ return null; } }
+function loadFlowState(){ try { return JSON.parse(localStorage.getItem(FLOW_KEY) || "null"); } catch { return null; } }
