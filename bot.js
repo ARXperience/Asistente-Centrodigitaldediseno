@@ -1,4 +1,4 @@
-// bot.js — Catálogo unificado + botones de acceso rápido + flujo de cotización + CTA actualizado + voz continua
+// bot.js — Catálogo unificado + botones + flujo de cotización + CTA + voz + guardado en servidor
 
 /***** DOM *****/
 const msgs  = document.getElementById('messages');
@@ -14,10 +14,8 @@ const QUOTE_KEY   = 'cdd_quote_leads_v1';
 const FLOW_KEY    = 'cdd_quote_flow_state_v1';
 
 /***** Contactos *****/
-// Tel oficial para recibir leads (se mantiene)
-const OFICIAL_PHONE = "573028618806";
-// Tel del CTA (nuevo pedido)
-const CTA_PHONE     = "573202608864";
+const OFICIAL_PHONE = "573028618806";        // WhatsApp donde llega la info
+const CTA_PHONE     = "573202608864";        // Tel. mostrado en CTA
 const OFICIAL_MAIL  = "centrodigitaldediseno@gmail.com";
 
 /***** Estado flujo *****/
@@ -27,7 +25,7 @@ let flow = loadFlowState() || { activo:false, paso:0, datos:{nombre:"",servicios
 const CTA = `\n\n**¿Quieres cotizar tu proyecto?** Escribe **cotizar** o contáctanos: **+${CTA_PHONE}** · **${OFICIAL_MAIL}**`;
 const BTN = "display:inline-block;margin:6px 8px 0 0;background:#10a37f;color:#fff;text-decoration:none;padding:10px 14px;border-radius:12px;font-weight:700;font-size:14px";
 
-/***** Catálogo unificado con BOTONES *****/
+/***** Catálogo *****/
 const KB = {
   overview:
 `### Servicios (catálogo)
@@ -50,7 +48,6 @@ Elige una categoría:
 <a href="#" class="inline-cta" data-q="Cotizar" style="${BTN}">💬 Cotizar ahora</a>
 ${CTA}`,
 
-  // (resto de descripciones – sin cambios funcionales)
   web:
 `### Páginas web (moderno + conversión)
 - Landing, multipágina y e-commerce.
@@ -147,8 +144,7 @@ clear?.addEventListener('click', ()=>{
   flow = { activo:false, paso:0, datos:{nombre:"",servicios:"",empresa:"",telefono:""} };
   botMsg("🧹 Historial limpio. ¿Escribes **cotizar** o vemos servicios?");
 });
-
-// Delegación para botones inline dentro del chat
+// botones inline dentro del chat
 msgs?.addEventListener('click', e=>{
   const el = e.target.closest('[data-q].inline-cta'); 
   if (el){ e.preventDefault(); const q = el.getAttribute('data-q')||''; if(q){ userMsg(q); route(q);} }
@@ -160,27 +156,18 @@ let rec=null, micActive=false;
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR || !micBtn) return;
   rec = new SR(); rec.lang = 'es-ES'; rec.interimResults = true; rec.continuous = true;
-
   rec.onresult = (ev)=>{
     let finalText = '';
     for (let i=ev.resultIndex; i<ev.results.length; i++){
       const res = ev.results[i];
       if (res.isFinal){ finalText += res[0].transcript.trim() + ' '; }
     }
-    if (finalText){
-      input.value = '';
-      userMsg(finalText.trim());
-      route(finalText.trim());
-    }
+    if (finalText){ input.value = ''; userMsg(finalText.trim()); route(finalText.trim()); }
   };
   rec.onend = ()=>{ if (micActive) try{ rec.start(); }catch(_){} };
-
   micBtn.addEventListener('click', ()=>{
-    if (!micActive){
-      try{ rec.start(); micActive=true; micBtn.classList.add('active'); micBtn.textContent='🎤 Escuchando'; }catch(_){}
-    }else{
-      rec.stop(); micActive=false; micBtn.classList.remove('active'); micBtn.textContent='🎤 Hablar';
-    }
+    if (!micActive){ try{ rec.start(); micActive=true; micBtn.classList.add('active'); micBtn.textContent='🎤 Escuchando'; }catch(_){}
+    } else { rec.stop(); micActive=false; micBtn.classList.remove('active'); micBtn.textContent='🎤 Hablar'; }
   });
 })();
 
@@ -190,7 +177,6 @@ function route(q){
   if (flow.activo){ handleCotizacion(q); return; }
 
   const qn = norm(q);
-
   if (/^servicios$|cat[aá]logo|categor[ií]as|todo$/.test(qn)) return botMsg(KB.overview);
 
   if (/p[aá]gina|web|ecommerce|tienda|landing/.test(qn)) return botMsg(KB.web);
@@ -262,19 +248,44 @@ Mensaje: Hola, quiero avanzar con la cotización.`);
 
   const resumen =
 `### ¡Genial, ${escapeHTML(nombre)}! 🙌
-**Resumen**
+Para **continuar con la cotización**, por favor **toca uno de estos botones**:
+
+<a href="https://wa.me/${OFICIAL_PHONE}?text=${wappText}" target="_blank" style="${btn}">📲 WhatsApp Oficial</a>
+<a href="mailto:${OFICIAL_MAIL}?subject=Cotización&body=${mailBody}" style="${btn}">✉️ Email Oficial</a>
+
+**Resumen enviado**
 - **Servicios:** ${escapeHTML(servicios)}
 - **Empresa/Proyecto:** ${escapeHTML(empresa)}
 - **WhatsApp/Teléfono:** ${escapeHTML(telefono)}
 
-**Acceso rápido**  
-<a href="https://wa.me/${OFICIAL_PHONE}?text=${wappText}" target="_blank" style="${btn}">📲 WhatsApp Oficial</a>
-<a href="mailto:${OFICIAL_MAIL}?subject=Cotización&body=${mailBody}" style="${btn}">✉️ Email Oficial</a>
-
 > Si necesitas corregir algo, escribe **cotizar** para iniciar nuevamente.`;
 
   flow={activo:false,paso:0,datos:{nombre:"",servicios:"",empresa:"",telefono:""}}; saveFlowState();
-  botMsg(resumen); botMsg(KB.cotiz);
+  botMsg(resumen); 
+  botMsg(KB.cotiz);
+
+  // === Guardar conversación completa en servidor ===
+  try { persistConversationToServer({ nombre, servicios, empresa, telefono }); } catch (e) { console.warn('No se pudo guardar la conversación:', e); }
+}
+
+/***** Guardado en servidor (PHP en /assets/save_conversation.php) *****/
+function persistConversationToServer(lead){
+  const history = JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+  const payload = {
+    when: new Date().toISOString(),
+    page: location.href,
+    userAgent: navigator.userAgent,
+    lead,
+    conversation: history     // [{role, text, t}]
+  };
+  // mismo dominio (Hostinger), no necesita CORS
+  fetch('assets/save_conversation.php', {
+    method: 'POST',
+    headers: { 'Content-Type':'application/json' },
+    body: JSON.stringify(payload)
+  }).then(r=>r.json()).then(res=>{
+    if (!res?.ok) console.warn('Guardado falló:', res);
+  }).catch(err=>console.warn('Error guardando:', err));
 }
 
 /***** Buscador difuso *****/
