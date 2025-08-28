@@ -1,4 +1,4 @@
-// bot.js — Catálogo unificado + flujo de cotización + CTA + chips + botones + autoscroll + voz con auto-envío
+// bot.js — Catálogo unificado + portafolio + bot Servimil + flujo de cotización + CTA + chips + autoscroll + voz
 
 /***** DOM *****/
 const msgs  = document.getElementById('messages');
@@ -25,7 +25,35 @@ let flow = loadFlowState() || { activo:false, paso:0, datos:{ nombre:"", servici
 const CTA = `\n\n**¿Quieres cotizar tu proyecto?** Escribe **cotizar** o contáctanos: **+${CTA_PHONE}** · **${OFICIAL_MAIL}**`;
 const BTN = "display:inline-block;margin:6px 8px 0 0;background:#10a37f;color:#fff;text-decoration:none;padding:10px 14px;border-radius:12px;font-weight:700;font-size:14px";
 
-/***** Catálogo (servicios mezclados, ordenados por categoría) *****/
+/***** Portafolio (páginas web) *****/
+const PORTAFOLIO_WEB = [
+  {
+    nombre: "Marketflix.com.co",
+    url: "https://marketflix.com.co",
+    descr: "Inicio de sesión con base de datos para autenticación. Interactiva/multimedia. Envío de correos.",
+    extra: "Credenciales demo — Correo: centro@admin · Contraseña: admin"
+  },
+  {
+    nombre: "Volservice",
+    url: "https://centrodigitaldedis.wixsite.com/volservice",
+    descr: "Sitio con tienda, experiencia interactiva/multimedia, blog para SEO orgánico, correo e indexación.",
+    extra: ""
+  },
+  {
+    nombre: "Almaverde",
+    url: "https://almaverde.com.co/",
+    descr: "Portafolio comercial: proyectos, captación de leads, correos electrónicos, blog con artículos (SEO, indexación).",
+    extra: ""
+  },
+  {
+    nombre: "Premium Apps",
+    url: "https://premiumappscol.wixsite.com/inicio",
+    descr: "Sitio de apps premium (en construcción). APKs gratuitas por tiempo limitado.",
+    extra: ""
+  }
+];
+
+/***** KB *****/
 const KB = {
   overview:
 `### Accesos rápidos
@@ -41,12 +69,12 @@ const KB = {
 <a href="#" class="inline-cta" data-q="Contenido con IA" style="${BTN}">🎬 Contenido con IA</a>
 <a href="#" class="inline-cta" data-q="Embudos y Realidad Aumentada" style="${BTN}">🧭 Embudos & RA</a>
 <a href="#" class="inline-cta" data-q="Apps Premium" style="${BTN}">🟣 Apps Premium</a>
-<a href="#" class="inline-cta" data-q="Marketing con IA" style="${BTN}">🧠 Marketing con IA</a>
+<a href="#" class="inline-cta" data-q="Portafolio" style="${BTN}">🗂️ Portafolio</a>
+<a href="#" class="inline-cta" data-q="Probar bot Servimil" style="${BTN}">🤳 Probar bot Servimil</a>
 <a href="https://gold-snail-248674.hostingersite.com/chatbot.html" target="_blank" style="${BTN}">🚀 Crear agente gratis</a>
 <a href="#" class="inline-cta" data-q="Cotizar" style="${BTN}">💬 Cotizar ahora</a>
 ${CTA}`,
 
-  // Web/Marketing Digital
   web:
 `### Páginas web (moderno + conversión)
 1. Diseño Web moderno y optimizado (landing, multipágina, e-commerce)  
@@ -55,82 +83,81 @@ ${CTA}`,
 
   branding:
 `### Branding y diseño de marca
-1. Logos, identidad visual y sistema de marca  
-2. Manual de marca y aplicaciones  
-3. Refresh/Rediseño de identidad${CTA}`,
+- Logos, identidad visual y sistema de marca  
+- Manual de marca y aplicaciones  
+- Refresh/Rediseño de identidad${CTA}`,
 
   contenido:
 `### Contenido para redes
-1. Creación de contenido visual (posts, carruseles)  
-2. Reels/TikTok/Shorts (guion + edición)  
-3. Calendario editorial y medición${CTA}`,
+- Posts, carruseles, video corto (Reels/TikTok/Shorts)  
+- Guion + edición + calendario editorial  
+- Métricas y mejora continua${CTA}`,
 
   social:
 `### Social Media Manager
-1. Gestión de redes y comunidad  
-2. Crecimiento orgánico y reporting  
-3. Optimización de publicaciones y horarios${CTA}`,
+- Gestión de redes y comunidad  
+- Crecimiento orgánico y reporting  
+- Optimización de frecuencia y formatos${CTA}`,
 
   seo:
 `### SEO (web + social)
-1. Posicionamiento en buscadores y redes  
-2. Auditoría técnica, on-page y contenidos  
-3. Estrategia de keywords y backlinks${CTA}`,
+- Auditoría técnica, on-page y contenidos  
+- Estrategia de keywords y backlinks  
+- SEO orgánico para blog y páginas clave${CTA}`,
 
   ads:
 `### Campañas publicitarias (Ads)
-1. Meta Ads, Google Ads y TikTok Ads  
-2. Creativo, segmentación y medición  
-3. Testing A/B y escalado por ROAS${CTA}`,
+- Meta Ads, Google Ads y TikTok Ads  
+- Creativo, segmentación y medición  
+- Testing A/B y escalado por ROAS${CTA}`,
 
   marketing:
 `### Estrategias de marketing & funnels
-1. Embudos de ventas y automatizaciones  
-2. Campañas full-funnel (tráfico → conversión)  
-3. Dashboards de KPIs${CTA}`,
+- Embudos de ventas y automatizaciones  
+- Campañas full-funnel (tráfico → conversión)  
+- Dashboards de KPIs${CTA}`,
 
   fotografia:
 `### Fotografía de producto
-1. Foto y micro-video publicitario  
-2. Retoque y formatos por plataforma  
-3. Entregables para catálogos y ads${CTA}`,
+- Foto y micro-video comercial  
+- Retoque y formatos por plataforma  
+- Paquetes para catálogos y ads${CTA}`,
 
-  // IA
   auto_ia:
 `### Automatizaciones con IA
-1. Procesos empresariales y atención al cliente  
-2. Integraciones Make/Zapier, email/WA/CRM  
-3. Scripts y flujos 24/7${CTA}`,
+- Procesos empresariales y atención al cliente  
+- Integraciones Make/Zapier, email/WA/CRM  
+- Flujos 24/7 con handoff a humano${CTA}`,
 
   bots_ia:
 `### Bots y Asistentes (mensajes y llamadas)
-1. Asistentes virtuales en WhatsApp/IG/Messenger  
-2. Bots de llamadas con handoff a humano  
-3. Calificación de leads y CRM${CTA}`,
+- Asistentes en WhatsApp/IG/Messenger  
+- Bots de llamadas con traspaso a asesor  
+- Calificación de leads y CRM${CTA}`,
 
   contenido_ia:
 `### Contenido con IA (video e imagen)
-1. Videos conceptuales/publicitarios/explicativos  
-2. Generación de imágenes y assets creativos  
-3. Producción híbrida IA + edición profesional${CTA}`,
+- Videos conceptuales/publicitarios/explicativos  
+- Generación de imágenes y assets creativos  
+- Producción híbrida IA + edición profesional${CTA}`,
 
   embudos_ra:
 `### Embudos automatizados y Realidad Aumentada
-1. Captura → nurturing → conversión con IA  
-2. Experiencias AR para promoción/retail  
-3. Medición y optimización${CTA}`,
+- Captura → nurturing → conversión con IA  
+- Experiencias AR para promoción/retail  
+- Medición y optimización${CTA}`,
 
   apps_premium:
 `### Apps Premium
-1. Licencias (VPN, YouTube Premium, PhotoRoom, etc.)  
-2. Gestión de cuentas y soporte a equipos  
-3. Onboarding y buenas prácticas${CTA}`,
+- Licencias (VPN, YouTube Premium, PhotoRoom, etc.)  
+- Gestión de cuentas y soporte a equipos  
+- Onboarding y buenas prácticas${CTA}`,
 
   mkt_ia:
 `### Marketing con IA
-1. Estrategias basadas en IA (análisis predictivo)  
-2. Personalización de campañas y audiencias  
-3. Experimentación continua con modelos${CTA}`,
+- Estrategias basadas en IA (análisis predictivo)  
+- Personalización de campañas y audiencias  
+- Experimentación continua con modelos${CTA}`,
 
   agente:
 `### Crea tu **agente gratis**
@@ -146,6 +173,31 @@ Trabajamos **por alcance y objetivos** (web/branding/IA/ads).
 3) Arranque del Sprint 1  
 ${CTA}`
 };
+
+/***** Helpers de render para portafolio *****/
+function renderPortafolioWeb(){
+  let out = `### Portafolio — Páginas web`;
+  PORTAFOLIO_WEB.forEach(p => {
+    out += `\n\n**${p.nombre}**  
+${p.descr}${p.extra ? `\n_${p.extra}_` : ''}  
+<a href="${p.url}" target="_blank" style="${BTN}">🔗 Visitar</a>`;
+  });
+  out += `\n${CTA}`;
+  return out;
+}
+
+/***** Sección Bot Servimil (con imagen + CTA WhatsApp) *****/
+function renderBotServimil(){
+  const servimilImg = "https://www.google.com/url?sa=i&url=https%3A%2F%2Fservimil.co%2F&psig=AOvVaw1T_CIc1DJ7FB3-M-Q3DqEW&ust=1756509440126000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCICNhbLSro8DFQAAAAAdAAAAABAE";
+  const phone = "5731157019885";
+  const text  = encodeURIComponent("Hola Emilia, quiero información");
+  return `### Bot de Servimil — Demo
+<img src="${servimilImg}" alt="Bot de Servimil" class="fade-in" />
+
+Prueba el bot en WhatsApp:
+<a href="https://wa.me/${phone}?text=${text}" target="_blank" style="${BTN}">💬 Hablar con Emilia</a>
+${CTA}`;
+}
 
 /***** Arranque *****/
 restoreHistory();
@@ -265,8 +317,11 @@ function route(q){
   if (/cotiz|presupuesto|precio|cu[aá]nto vale|cu[aá]nto cuesta/.test(qn)) { startCotizacion(); return; }
   if (/agente gratis|crear.*agente|chatbot gratis/.test(qn)) return botMsg(KB.agente);
 
+  if (/^portafolio$|trabajos|proyectos|webs realizadas/.test(qn)) return botMsg(renderPortafolioWeb());
+  if (/servimil|probar.*servimil|bot servimil|probar bot/.test(qn)) return botMsg(renderBotServimil());
+
   const hit = smallSearch(qn); if (hit) return botMsg(hit);
-  botMsg("Puedo ayudarte con cualquier categoría del **catálogo** o iniciar **cotización**. " + CTA);
+  botMsg("Puedo ayudarte con cualquier categoría del **catálogo**, mostrar el **portafolio** o iniciar **cotización**. " + CTA);
 }
 
 /***** Flujo de Cotización *****/
@@ -366,6 +421,8 @@ function smallSearch(q){
     [KB.apps_premium,["apps premium","vpn","youtube premium","photoroom"]],
     [KB.mkt_ia,["marketing ia","predictivo","personalizacion","personalización"]],
     [KB.agente,["agente gratis","crear agente","chatbot gratis"]],
+    [renderPortafolioWeb(),["portafolio","trabajos","proyectos","webs realizadas"]],
+    [renderBotServimil(),["servimil","probar servimil","bot servimil","probar bot"]],
     [KB.overview,["servicios","catalogo","catálogo","categorias","categorías","todo"]],
     [KB.cotiz,["cotiz","presupuesto","precio","cuanto vale","cuánto vale","cuanto cuesta","cuánto cuesta"]],
   ];
@@ -410,45 +467,4 @@ function render(role, mdText){
 
   row.appendChild(av); row.appendChild(bub); msgs.appendChild(row);
   requestAnimationFrame(()=>{ msgs.scrollTop = msgs.scrollHeight; });
-  saveToHistory(role, mdText);
-}
-function userMsg(text){ render("user", escapeHTML(text)); }
-function botMsg(text){ render("assistant", text); }
-function mdToHTML(md){
-  md = md.replace(/```([\s\S]*?)```/g, (_,code)=> `<pre><code>${escapeHTML(code.trim())}</code></pre>`);
-  md = md.replace(/^### (.*)$/gim,'<h3>$1</h3>').replace(/^## (.*)$/gim,'<h2>$1</h2>').replace(/^# (.*)$/gim,'<h1>$1</h1>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+?)`/g,'<code>$1</code>');
-  const lines = md.split('\n').map(line=>{
-    if (/^\s*-\s+/.test(line)) return `<li>${line.replace(/^\s*-\s+/, '')}</li>`;
-    if (/^\s*•\s+/.test(line)) return `<li>${line.replace(/^\s*•\s+/, '')}</li>`;
-    if (/^<h\d|^<pre|^<ul|^<li|^<\/li|^<\/ul|^<a /.test(line)) return line;
-    return line.trim()? `<p>${line}</p>` : '<p style="margin:4px 0"></p>';
-  });
-  return lines.join('\n').replace(/(?:<li>[\s\S]*?<\/li>\n?)+/g, m => `<ul>${m}</ul>`);
-}
-function escapeHTML(s){return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
-function norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'').replace(/[^a-z0-9áéíóúñü\s]/g,' ').replace(/\s+/g,' ').trim();}
-
-/***** Validaciones *****/
-function isValidPhone(v){ const d = onlyDigits(v); return /^57\d{10}$/.test(d) || /^\d{10}$/.test(d); }
-function cleanPhone(v){ let d = onlyDigits(v); if (/^\d{10}$/.test(d)) d = "57"+d; return d; }
-function onlyDigits(s){ return (s||'').replace(/\D+/g,''); }
-
-/***** Persistencia local *****/
-function saveToHistory(role, text){
-  const arr = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-  arr.push({ role, text, t: Date.now() });
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
-}
-function restoreHistory(){
-  const arr = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-  if (!arr.length) return;
-  arr.forEach(m => { m.role === 'assistant' ? botMsg(m.text) : userMsg(m.text); });
-  const savedFlow = loadFlowState();
-  if (savedFlow?.activo){
-    flow = savedFlow;
-    botMsg("Teníamos un **flujo de cotización** pendiente. ¿Deseas **continuar**? Escribe `cancelar` para salir.");
-  }
-}
-function historyEmpty(){ const arr = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); return arr.length === 0; }
-function saveFlowState(){ localStorage.setItem(FLOW_KEY, JSON.stringify(flow)); }
-function loadFlowState(){ try { return JSON.parse(localStorage.getItem(FLOW_KEY) || "null"); } catch { return null; } }
+  saveToHistory(role, mdText
