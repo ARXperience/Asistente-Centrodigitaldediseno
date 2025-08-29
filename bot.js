@@ -47,32 +47,32 @@ const KB = {
 <strong>Portafolio — Webs</strong><br>
 🔗 <a href="https://marketflix.com.co" target="_blank">Marketflix.com.co</a><br>
 <img src="assets/marketflix.png" width="260" alt="Marketflix"><br>
-Plataforma con autenticación, base de datos, multimedia y correos.<br><br>
+Plataforma con autenticación, base de datos para usuarios, interactividad multimedia y envío de correos (workflows).<br><br>
 
 🔗 <a href="https://centrodigitaldis.wixsite.com/volservice" target="_blank">Volservice</a><br>
 <img src="assets/volservice.png" width="260" alt="Volservice"><br>
-Sitio con tienda, blog SEO, correos e indexación.<br><br>
+Sitio con tienda, blog para SEO orgánico, correos e indexación.<br><br>
 
 🔗 <a href="https://almaverde.com.co/" target="_blank">AlmaVerde.com.co</a><br>
 <img src="assets/almaverde.png" width="260" alt="Almaverde"><br>
-Portafolio comercial, proyectos, captación de leads, correos, blog SEO.<br><br>
+Portafolio comercial, proyectos, captación de leads, correos electrónicos, blog con artículos para posicionamiento SEO e indexación.<br><br>
 
 🔗 <a href="https://premiumappscol.wixsite.com/inicio" target="_blank">Premium Apps</a><br>
 <img src="assets/premiumapps.png" width="260" alt="Premium Apps"><br>
-Sitio en construcción, catálogo de APKs gratuitas por tiempo limitado.${CTA}`,
+Sitio de apps premium (en construcción), APKs gratuitas por tiempo limitado.${CTA}`,
 
   automat:
 `### Automatizaciones & Bots
-- <strong>ManyChat/WhatsApp</strong>: flujos y campañas.<br>
+- <strong>ManyChat/WhatsApp</strong>: flujos, segmentación, campañas.<br>
 - <strong>Make</strong>: integra formularios, CRM, Google, Meta, Email.<br>
-- <strong>Bots de IA</strong> entrenados con tus textos/FAQs.<br><br>
+- <strong>Bots de IA</strong> entrenados con tus textos/FAQs para calificar leads y derivar a humano.<br><br>
 
 <strong>Ejemplo real — Bot “Emilia” (Servimil)</strong><br>
-<img src="assets/emilia.png" width="260" alt="Bot Emilia"><br>
-Asistente virtual para responder y guiar clientes.<br><br>
+<img src="assets/emilia.png" width="260" alt="Bot Emilia" style="border-radius:12px"><br>
+Asistente virtual que responde y guía clientes por WhatsApp.<br><br>
 
 <a href="https://wa.me/573157019885?text=Hola%20Emilia,%20quiero%20informaci%C3%B3n" target="_blank"
-style="display:inline-block;background:#10a37f;color:#fff;text-decoration:none;padding:8px 14px;border-radius:10px;font-weight:600">Probar en WhatsApp</a>${CTA}`,
+style="display:inline-block;background:#10a37f;color:#fff;text-decoration:none;padding:8px 14px;border-radius:10px;font-weight:600">Probar bot en WhatsApp</a>${CTA}`,
 
   branding:
 `### Branding & diseño de marca
@@ -252,34 +252,96 @@ function norm(s){ return (s||'').toLowerCase().trim(); }
 function saveFlowState(){ localStorage.setItem(FLOW_KEY, JSON.stringify(flow)); }
 function loadFlowState(){ try{ return JSON.parse(localStorage.getItem(FLOW_KEY)||"null"); } catch { return null; } }
 
-// ===== Voz (dictado) =====
+// ===== Voz (dictado) corregido: sin repeticiones y auto-envío tras 1.5s =====
 let recognition;
-if ('webkitSpeechRecognition' in window){
+let dict = {
+  running: false,
+  finalText: "",
+  timer: null,
+  seen: new Set() // evita duplicados de resultados re-emitidos
+};
+
+// Devuelve base + la parte nueva de "addition" sin repetir prefijos ya dichos
+function appendDelta(base, addition) {
+  const b = base.trim();
+  const a = addition.trim();
+  if (!b) return a;
+  const max = Math.min(b.length, a.length);
+  for (let k = max; k > 0; k--) {
+    if (b.slice(-k) === a.slice(0, k)) {
+      return (b + a.slice(k)).replace(/\s+/g, ' ').trim();
+    }
+  }
+  return (b + " " + a).replace(/\s+/g, ' ').trim();
+}
+
+function resetSilenceTimer() {
+  clearTimeout(dict.timer);
+  dict.timer = setTimeout(() => {
+    if (!dict.running) return;
+    const textToSend = (input.value || dict.finalText || "").trim();
+    if (textToSend) {
+      try { recognition.stop(); } catch {}
+      dict.running = false;
+      send.click();
+    }
+  }, 1500);
+}
+
+if ('webkitSpeechRecognition' in window) {
   recognition = new webkitSpeechRecognition();
   recognition.lang = "es-ES";
   recognition.continuous = true;
   recognition.interimResults = true;
 
-  let silenceTimer;
+  recognition.onstart = () => {
+    dict.running = true;
+    dict.finalText = "";
+    dict.seen.clear();
+    clearTimeout(dict.timer);
+    botMsg("🎤 Estoy escuchando; cuando haya 1.5 s sin voz enviaré tu mensaje automáticamente.");
+  };
+
   recognition.onresult = (e) => {
-    let finalChunk = "";
-    for (let i=e.resultIndex; i<e.results.length; i++){
-      if (e.results[i].isFinal){
-        finalChunk += e.results[i][0].transcript + " ";
+    let interim = dict.finalText;
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const r = e.results[i];
+      const t = (r[0]?.transcript || "").replace(/\s+/g, " ").trim();
+      const key = `${i}:${r.isFinal}:${t}`;
+      if (!t || dict.seen.has(key)) continue;
+      dict.seen.add(key);
+
+      if (r.isFinal) {
+        dict.finalText = appendDelta(dict.finalText, t);
+        input.value = dict.finalText;
+      } else {
+        interim = appendDelta(dict.finalText, t);
+        input.value = interim;
       }
     }
-    if (finalChunk){
-      input.value = (input.value + " " + finalChunk).trim();
-    }
-    clearTimeout(silenceTimer);
-    silenceTimer = setTimeout(()=>{ if (input.value.trim()) send.click(); }, 1500);
+    resetSilenceTimer();
+  };
+
+  recognition.onerror = () => {
+    clearTimeout(dict.timer);
+    dict.running = false;
+  };
+  recognition.onend = () => {
+    clearTimeout(dict.timer);
+    dict.running = false;
   };
 }
 
-if (talk){
-  talk.onclick = ()=>{
-    if (recognition) recognition.start();
-    botMsg("🎤 Estoy escuchando; cuando haya 1.5 s sin voz enviaré tu mensaje automáticamente.");
-  };
+if (talk && recognition) {
+  talk.addEventListener('click', () => {
+    if (dict.running) {
+      try { recognition.stop(); } catch {}
+      dict.running = false;
+      talk.textContent = 'Hablar';
+    } else {
+      try { recognition.start(); } catch {}
+      talk.textContent = 'Escuchando';
+    }
+  });
 }
 // ================== fin bot.js ==================
