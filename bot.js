@@ -1,4 +1,4 @@
-// bot.js — Portafolio por categoría (Webs / Bots) + flujo cotización + voz + guardado
+// bot.js — Portafolio unido a cada categoría (Webs/Bots) + descripciones + flujo cotización + voz + guardado
 
 document.addEventListener('DOMContentLoaded', () => {
   const msgs  = document.getElementById('messages');
@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const send  = document.getElementById('send');
   const typing= document.getElementById('typing');
   const clear = document.getElementById('clear');
-  const micBtn= document.getElementById('mic'); // opcional si tu HTML lo tiene
+  const micBtn= document.getElementById('mic'); // si existe en tu HTML
 
   if (!msgs || !input || !send) {
     console.error('[bot.js] Faltan elementos base (#messages, #input, #send)');
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
 `**Plataforma con autenticación** y manejo de **base de datos** para usuarios.
 **Interactividad multimedia** y **envío de correos** integrado (workflows).
 Optimizada para captar registros y retención.`,
-      extra: "_Credenciales demo: Correo: centro@admin · Contraseña: admin_"
+      extra: "_Credenciales demo: Correo: **centro@admin** · Contraseña: **admin**_"
     },
     {
       nombre: "Volservice",
@@ -70,7 +70,7 @@ Arquitectura de contenidos preparada para escalado y conversión.`,
   const SERVIMIL = {
     nombre: "Emilia (Servimil)",
     img: "https://www.google.com/url?sa=i&url=https%3A%2F%2Fservimil.co%2F&psig=AOvVaw1T_CIc1DJ7FB3-M-Q3DqEW&ust=1756509440126000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCICNhbLSro8DFQAAAAAdAAAAABAE",
-    phone: "573157019885", // número actualizado
+    phone: "573157019885",
     textoWapp: "Hola Emilia, quiero información",
     descr:
 `**Asistente conversacional** para atención al cliente en **WhatsApp**.
@@ -79,26 +79,25 @@ Arquitectura de contenidos preparada para escalado y conversión.`,
 - Diseñado para **disponibilidad 24/7** y **medición de conversión**.`
   };
 
-  // ===== Catálogo de servicios (descripciones separadas)
+  // ===== Catálogo de servicios (descripciones)
   const KB = {
     overview:
 `### Portafolio de servicios
 Elige qué deseas ver:
 
-<a href="#" data-q="Portafolio de webs" style="${BTN}">🖥️ Portafolio de Webs</a>
-<a href="#" data-q="Portafolio de bots" style="${BTN}">🤖 Portafolio de Bots</a>
+<a href="#" data-q="Páginas web" style="${BTN}">🖥️ Páginas web + Portafolio</a>
+<a href="#" data-q="Bots y Asistentes IA" style="${BTN}">🤖 Bots + Portafolio</a>
 
-También puedo detallar cualquier servicio:
+O explora servicios específicos:
 
-<a href="#" data-q="Páginas web" style="${BTN}">🖥️ Páginas web</a>
 <a href="#" data-q="Branding" style="${BTN}">🎨 Branding</a>
 <a href="#" data-q="Contenido para redes" style="${BTN}">📱 Contenido para redes</a>
 <a href="#" data-q="Social Media Manager" style="${BTN}">👥 Social Media Manager</a>
 <a href="#" data-q="SEO" style="${BTN}">🔎 SEO</a>
 <a href="#" data-q="Campañas Ads" style="${BTN}">💡 Campañas Ads</a>
 <a href="#" data-q="Estrategias de marketing" style="${BTN}">📈 Estrategias de marketing</a>
+<a href="#" data-q="Fotografía de producto" style="${BTN}">📷 Fotografía de producto</a>
 <a href="#" data-q="Automatizaciones con IA" style="${BTN}">⚙️ Automatizaciones con IA</a>
-<a href="#" data-q="Bots y Asistentes IA" style="${BTN}">🤖 Bots y Asistentes IA</a>
 <a href="#" data-q="Contenido con IA" style="${BTN}">🎬 Contenido con IA</a>
 <a href="#" data-q="Embudos y Realidad Aumentada" style="${BTN}">🧭 Embudos & RA</a>
 <a href="#" data-q="Apps Premium" style="${BTN}">🟣 Apps Premium</a>
@@ -212,7 +211,6 @@ ${CTA}`
     PORTAFOLIO_WEB.forEach(p => {
       out += `\n\n**${p.nombre}**\n${p.descr}${p.extra ? `\n${p.extra}` : ''}\n<a href="${p.url}" target="_blank" style="${BTN}">🔗 Visitar</a>`;
     });
-    out += `\n${CTA}`;
     return out;
   }
   function renderPortafolioBots(){
@@ -223,8 +221,15 @@ ${CTA}`
 
 ${SERVIMIL.descr}
 
-<a href="https://wa.me/${SERVIMIL.phone}?text=${text}" target="_blank" style="${BTN}">💬 Probar en WhatsApp</a>
-${CTA}`;
+<a href="https://wa.me/${SERVIMIL.phone}?text=${text}" target="_blank" style="${BTN}">💬 Probar en WhatsApp</a>`;
+  }
+
+  // ===== Combinados: servicio + portafolio debajo
+  function renderWebWithPortfolio(){
+    return `${KB.web}\n\n${renderPortafolioWeb()}\n${CTA}`;
+  }
+  function renderBotsWithPortfolio(){
+    return `${KB.bots_ia}\n\n${renderPortafolioBots()}\n${CTA}`;
   }
 
   // ===== Render + Markdown
@@ -273,7 +278,7 @@ ${CTA}`;
     const lines = md.split('\n').map(line=>{
       if (/^\s*-\s+/.test(line)) return `<li>${line.replace(/^\s*-\s+/, '')}</li>`;
       if (/^\s*•\s+/.test(line)) return `<li>${line.replace(/^\s*•\s+/, '')}</li>`;
-      if (/^<h\d|^<pre|^<ul|^<li|^<\/li|^<\/ul|^<a |^<img /.test(line)) return line;
+      if (/^<h\d|^<pre|^ul|^<ul|^<li|^<\/li|^<\/ul|^<a |^<img /.test(line)) return line;
       return line.trim()? `<p>${line}</p>` : '<p style="margin:4px 0"></p>';
     });
     return lines.join('\n').replace(/(?:<li>[\s\S]*?<\/li>\n?)+/g, m => `<ul>${m}</ul>`);
@@ -314,14 +319,14 @@ ${CTA}`;
       localStorage.removeItem(FLOW_KEY);
       msgs.innerHTML = ""; typing.style.display="none";
       flow = { activo:false, paso:0, datos:{nombre:"",servicios:"",empresa:"",telefono:""} };
-      botMsg("🧹 Historial limpio. ¿Vemos **portafolio** o iniciamos **cotización**?");
+      botMsg("🧹 Historial limpio. ¿Vemos **Páginas web + Portafolio** o iniciamos **cotización**?");
     });
   }
 
   // ===== Bienvenida
   restoreHistory();
   if (historyEmpty()) {
-    botMsg("👋 ¡Hola! Puedo mostrarte nuestro **Portafolio de Webs** o **Portafolio de Bots**, o iniciar **cotización**.");
+    botMsg("👋 ¡Hola! Puedo mostrarte **Páginas web + Portafolio** o **Bots + Portafolio**, o iniciar **cotización**.");
     botMsg(KB.overview);
   }
 
@@ -353,7 +358,7 @@ ${CTA}`;
     function flushVoiceBuffer(){ if (silenceTimer){ clearTimeout(silenceTimer); silenceTimer=null; } const text=(input.value||voiceBuffer||'').trim(); if (!text) return; voiceBuffer=""; input.value=""; userMsg(text); route(text); }
   })();
 
-  // ===== Router
+  // ===== Router (unificado: servicio + su portafolio)
   function route(q){
     if (/^cancelar$/i.test(q.trim())) {
       if (flow.activo){
@@ -366,12 +371,17 @@ ${CTA}`;
 
     const qn = norm(q);
 
-    // Portafolio por categorías
-    if (/^portafolio.*web|^webs$|sitios|trabajos web|webs realizadas/.test(qn)) return botMsg(renderPortafolioWeb());
-    if (/^portafolio.*bot|^bots$|servimil|probar.*bot/.test(qn)) return botMsg(renderPortafolioBots());
+    // WEB: pedir páginas web o portafolio de webs muestra ambos (servicio + trabajos)
+    if (/(^|\b)(paginas web|p[aá]ginas web|webs|portafolio de webs|trabajos web|sitios)(\b|$)/.test(qn)) {
+      return botMsg(renderWebWithPortfolio());
+    }
 
-    // Servicios detallados
-    if (/p[aá]gina|web|ecommerce|tienda|landing/.test(qn)) return botMsg(KB.web);
+    // BOTS: pedir bots o portafolio de bots muestra ambos (servicio + trabajos)
+    if (/(^|\b)(bots y asistentes ia|bots|portafolio de bots|servimil|probar bot)(\b|$)/.test(qn)) {
+      return botMsg(renderBotsWithPortfolio());
+    }
+
+    // Resto de servicios (descripciones ya detalladas)
     if (/branding|marca|logo|manual/.test(qn)) return botMsg(KB.branding);
     if (/contenido.*red|reels|tiktok|shorts|posts?/.test(qn)) return botMsg(KB.contenido);
     if (/social.*manager|smm|gesti[oó]n.*red/.test(qn)) return botMsg(KB.social);
@@ -382,7 +392,6 @@ ${CTA}`;
 
     // IA
     if (/automatizaciones?.*ia/.test(qn)) return botMsg(KB.auto_ia);
-    if (/bots?.*ia|asistentes?.*ia|llamadas?.*ia/.test(qn)) return botMsg(KB.bots_ia);
     if (/contenido.*ia|video.*ia|imagen.*ia|audiovisual.*ia/.test(qn)) return botMsg(KB.contenido_ia);
     if (/embudos?.*automatizados|realidad aumentada|ra\b/.test(qn)) return botMsg(KB.embudos_ra);
     if (/apps?.*premium|vpn|youtube premium|photoroom/.test(qn)) return botMsg(KB.apps_premium);
@@ -391,9 +400,9 @@ ${CTA}`;
     if (/cotiz|presupuesto|precio|cu[aá]nto vale|cu[aá]nto cuesta/.test(qn)) { startCotizacion(); return; }
     if (/portafolio|servicios|cat[aá]logo|categor[ií]as|todo$/.test(qn)) return botMsg(KB.overview);
 
-    // Búsqueda difusa fallback
+    // Búsqueda difusa (contiene triggers unificados)
     const hit = smallSearch(qn); if (hit) return botMsg(hit);
-    botMsg("Puedo mostrarte el **Portafolio de Webs** o **Portafolio de Bots**, o iniciar **cotización**. " + CTA);
+    botMsg("Puedo mostrarte **Páginas web + Portafolio** o **Bots + Portafolio**, o iniciar **cotización**. " + CTA);
   }
 
   // ===== Flujo de Cotización
@@ -477,12 +486,11 @@ Para **continuar con la cotización**, por favor **toca uno de estos botones**:
       .catch(err=>console.warn('Error guardando:',err));
   }
 
-  // ===== Búsqueda difusa
+  // ===== Búsqueda difusa (incluye triggers unificados)
   function smallSearch(q){
     const pairs = [
-      [renderPortafolioWeb(), ["portafolio web","portafolio de webs","webs realizadas","trabajos web","sitios"]],
-      [renderPortafolioBots(), ["portafolio bots","portafolio de bots","servimil","probar bot","emilia"]],
-      [KB.web,["web","ecommerce","tienda","landing","sitio"]],
+      [renderWebWithPortfolio(), ["paginas web","páginas web","webs","portafolio de webs","trabajos web","sitios"]],
+      [renderBotsWithPortfolio(), ["bots y asistentes ia","bots","portafolio de bots","servimil","probar bot","emilia"]],
       [KB.branding,["branding","marca","logo","manual"]],
       [KB.fotografia,["foto","fotografia","fotografía","producto"]],
       [KB.contenido,["contenido","reels","tiktok","shorts","post","posts"]],
@@ -491,7 +499,6 @@ Para **continuar con la cotización**, por favor **toca uno de estos botones**:
       [KB.ads,["ads","campañas","anuncios","google","meta","tiktok"]],
       [KB.marketing,["marketing","funnel","embudo","growth","estrategia"]],
       [KB.auto_ia,["automatizacion ia","automatización ia"]],
-      [KB.bots_ia,["bots ia","asistentes ia","llamadas ia"]],
       [KB.contenido_ia,["contenido ia","video ia","imagen ia"]],
       [KB.embudos_ra,["embudos automatizados","realidad aumentada","ra"]],
       [KB.apps_premium,["apps premium","vpn","youtube premium","photoroom"]],
