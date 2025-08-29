@@ -1,35 +1,35 @@
-
-// bot.js — Servicios por botón + Webs con portafolio + Automatizaciones incluyen Bots (Emilia) + cotización + voz + guardado
-
+// bot.js — Servicios + Portafolio + Bots (Emilia) + Cotización + Voz (silencio 1.5s) + Guardado
 document.addEventListener('DOMContentLoaded', () => {
+  // ===== Nodos base
   const msgs  = document.getElementById('messages');
   const input = document.getElementById('input');
   const send  = document.getElementById('send');
   const typing= document.getElementById('typing');
   const clear = document.getElementById('clear');
-  const micBtn= document.getElementById('mic'); // si existe en tu HTML
+  const micBtn= document.getElementById('mic'); // si no existe, se omite voz
 
   if (!msgs || !input || !send) {
     console.error('[bot.js] Faltan elementos base (#messages, #input, #send)');
     return;
   }
 
-  // ===== Datos / Storage
+  // ===== Constantes y storage
   const STORAGE_KEY = 'cdd_chat_history_v1';
   const QUOTE_KEY   = 'cdd_quote_leads_v1';
   const FLOW_KEY    = 'cdd_quote_flow_state_v1';
 
-  const OFICIAL_PHONE = "573028618806";       // WhatsApp oficial para cotización
-  const CTA_PHONE     = "573202608864";       // WhatsApp mostrado en CTA
+  // Contacto
+  const OFICIAL_PHONE = "573028618806";       // WhatsApp oficial recepción de cotizaciones
+  const CTA_PHONE     = "573202608864";       // WhatsApp mostrado en CTA general
   const OFICIAL_MAIL  = "centrodigitaldediseno@gmail.com";
 
   const CTA = `\n\n**¿Quieres cotizar tu proyecto?** Escribe **cotizar** o contáctanos: **+${CTA_PHONE}** · **${OFICIAL_MAIL}**`;
   const BTN = "display:inline-block;margin:6px 8px 0 0;background:#10a37f;color:#fff;text-decoration:none;padding:10px 14px;border-radius:12px;font-weight:700;font-size:14px";
 
-  // ===== Estado de flujo
+  // ===== Estado del flujo de cotización
   let flow = loadFlowState() || { activo:false, paso:0, datos:{ nombre:"", servicios:"", empresa:"", telefono:"" } };
 
-  // ===== Portafolio: Webs
+  // ===== Portafolio — Webs
   const PORTAFOLIO_WEB = [
     {
       nombre: "Marketflix.com.co",
@@ -46,28 +46,25 @@ Optimizada para captar registros y retención.`,
       descr:
 `Tienda online con **experiencia interactiva/multimedia**.
 Blog para **SEO orgánico** y **automatizaciones de correo**.
-Arquitectura para posicionamiento e indexación.`,
-      extra: ""
+Arquitectura para posicionamiento e indexación.`
     },
     {
       nombre: "Almaverde",
       url: "https://almaverde.com.co/",
       descr:
 `**Portafolio comercial** con proyectos, **captación de leads**,
-**envíos de correos** y **blog** para posicionamiento (SEO / indexación).`,
-      extra: ""
+**envíos de correos** y **blog** para posicionamiento (SEO / indexación).`
     },
     {
       nombre: "Premium Apps (en construcción)",
       url: "https://premiumappscol.wixsite.com/inicio",
       descr:
 `Sitio de **apps premium** con **APKs gratuitas** por tiempo limitado.
-Arquitectura preparada para escalado y conversión.`,
-      extra: ""
+Arquitectura preparada para escalado y conversión.`
     }
   ];
 
-  // ===== Portafolio: Bots (Emilia / Servimil)
+  // ===== Portafolio — Bots (Emilia / Servimil)
   const SERVIMIL = {
     nombre: "Emilia (Servimil)",
     img: "https://www.google.com/url?sa=i&url=https%3A%2F%2Fservimil.co%2F&psig=AOvVaw1T_CIc1DJ7FB3-M-Q3DqEW&ust=1756509440126000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCICNhbLSro8DFQAAAAAdAAAAABAE",
@@ -80,7 +77,7 @@ Arquitectura preparada para escalado y conversión.`,
 - Disponible **24/7** con medición de conversión.`
   };
 
-  // ===== Catálogo de servicios (descripciones)
+  // ===== Catálogo de servicios (texto detallado)
   const KB = {
     overview:
 `### Portafolio de servicios
@@ -206,7 +203,7 @@ Trabajamos **por alcance y objetivos** (web/branding/IA/ads).
 ${CTA}`
   };
 
-  // ===== Render Portafolio
+  // ===== Helpers: Portafolio render
   function renderPortafolioWeb(){
     let out = `### Portafolio — Webs`;
     PORTAFOLIO_WEB.forEach(p => {
@@ -224,20 +221,11 @@ ${SERVIMIL.descr}
 
 <a href="https://wa.me/${SERVIMIL.phone}?text=${text}" target="_blank" style="${BTN}">💬 Probar en WhatsApp</a>`;
   }
+  function renderWebWithPortfolio(){ return `${KB.web}\n\n${renderPortafolioWeb()}\n${CTA}`; }
+  function renderAutomatizacionesWithBots(){ return `${KB.auto_ia}\n\n${KB.bots_ia}\n\n${renderPortafolioBots()}\n${CTA}`; }
+  function renderBotsWithPortfolio(){ return `${KB.bots_ia}\n\n${renderPortafolioBots()}\n${CTA}`; }
 
-  // ===== Combinados: servicio + portafolio debajo
-  function renderWebWithPortfolio(){
-    return `${KB.web}\n\n${renderPortafolioWeb()}\n${CTA}`;
-  }
-  function renderAutomatizacionesWithBots(){
-    // Al pedir "Automatizaciones" mostramos AUTOMATIZACIONES + BOTS + Portafolio (Emilia)
-    return `${KB.auto_ia}\n\n${KB.bots_ia}\n\n${renderPortafolioBots()}\n${CTA}`;
-  }
-  function renderBotsWithPortfolio(){
-    return `${KB.bots_ia}\n\n${renderPortafolioBots()}\n${CTA}`;
-  }
-
-  // ===== Render + Markdown
+  // ===== Render/chat
   function render(role, mdText){
     const row = document.createElement("div");
     row.className = "row " + (role === "assistant" ? "assistant" : "user");
@@ -259,6 +247,7 @@ ${SERVIMIL.descr}
 
     bub.innerHTML = html;
 
+    // Copiar en bloques de código
     bub.querySelectorAll("pre").forEach(pre=>{
       const head=document.createElement("div"); head.className="code-head"; head.innerHTML=`<span>código</span>`;
       const btn=document.createElement("button"); btn.className="copy"; btn.textContent="Copiar";
@@ -273,6 +262,7 @@ ${SERVIMIL.descr}
   function userMsg(text){ render("user", escapeHTML(text)); }
   function botMsg(text){ render("assistant", text); }
 
+  // ===== Markdown simple
   function mdToHTML(md){
     md = md.replace(/```([\s\S]*?)```/g, (_,code)=> `<pre><code>${escapeHTML(code.trim())}</code></pre>`);
     md = md.replace(/^### (.*)$/gim,'<h3>$1</h3>')
@@ -291,7 +281,7 @@ ${SERVIMIL.descr}
   function escapeHTML(s){return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
   function norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'').replace(/[^a-z0-9áéíóúñü\s]/g,' ').replace(/\s+/g,' ').trim();}
 
-  // ===== Delegación de eventos dentro de mensajes (botones data-q del overview)
+  // ===== Delegación: botones dentro de mensajes (data-q)
   msgs.addEventListener('click', (e) => {
     const el = e.target.closest('[data-q], a[data-q]');
     if (el) {
@@ -300,7 +290,7 @@ ${SERVIMIL.descr}
     }
   });
 
-  // ===== Chips (los que ya tienes en el HTML)
+  // ===== Chips del HTML
   const chips = document.querySelector('.chips');
   if (chips) {
     chips.addEventListener('click', (e)=>{
@@ -331,13 +321,13 @@ ${SERVIMIL.descr}
   // ===== Bienvenida
   restoreHistory();
   if (historyEmpty()) {
-    botMsg("👋 ¡Hola! Tengo **Páginas web + Portafolio** y **Automatizaciones + Bots** listos para mostrar. También puedo **cotizar**.");
+    botMsg("👋 ¡Hola! Puedo mostrar **Páginas web + Portafolio** o **Automatizaciones + Bots (Emilia)**. También puedo **cotizar**.");
     botMsg(KB.overview);
   }
 
-  // ===== Voz (auto-envía tras 1.5s de silencio, si tienes #mic)
+  // ===== Voz (auto-envío tras 1.5s de silencio) — CORREGIDO
   let rec = null, micActive = false;
-  let voiceBuffer = "";
+  let lastTranscript = "";
   let silenceTimer = null;
   const SILENCE_MS = 1500;
 
@@ -345,25 +335,63 @@ ${SERVIMIL.descr}
     if (!micBtn) return;
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) { micBtn.disabled = true; return; }
-    rec = new SR(); rec.lang='es-ES'; rec.interimResults=true; rec.continuous=true;
+
+    rec = new SR();
+    rec.lang = 'es-ES';
+    rec.interimResults = true;
+    rec.continuous = true;
+
     rec.onresult = (ev) => {
-      const last = ev.results[ev.results.length - 1];
-      const partial = last[0]?.transcript || ""; const isFinal = last.isFinal;
-      if (isFinal) { voiceBuffer = (voiceBuffer + " " + partial).trim(); input.value = voiceBuffer; }
-      else { input.value = (voiceBuffer + " " + partial).trim(); }
-      scheduleAutoSend();
+      const result = ev.results[ev.results.length - 1];
+      const transcript = result[0]?.transcript.trim() || "";
+
+      if (result.isFinal) {
+        lastTranscript = transcript;
+        input.value = lastTranscript;
+        scheduleAutoSend();
+      } else {
+        // mostrar provisional sin acumular en bucle
+        input.value = transcript;
+      }
     };
     rec.onend = ()=>{ if (micActive) try{ rec.start(); }catch(_){} };
     rec.onerror = ()=>{ if (micActive) try{ rec.start(); }catch(_){} };
+
     micBtn.addEventListener('click', ()=>{
-      if (!micActive){ voiceBuffer=""; input.value=""; try{ rec.start(); micActive=true; micBtn.classList.add('active'); micBtn.textContent='🎤 Escuchando'; }catch(_){ } }
-      else { try{ rec.stop(); }catch(_){} micActive=false; micBtn.classList.remove('active'); micBtn.textContent='🎤 Hablar'; flushVoiceBuffer(); }
+      if (!micActive){
+        lastTranscript = "";
+        input.value = "";
+        try {
+          rec.start();
+          micActive = true;
+          micBtn.classList.add('active');
+          micBtn.textContent = '🎤 Escuchando';
+        } catch(_){}
+      } else {
+        try { rec.stop(); } catch(_){}
+        micActive = false;
+        micBtn.classList.remove('active');
+        micBtn.textContent = '🎤 Hablar';
+        flushVoiceBuffer();
+      }
     });
-    function scheduleAutoSend(){ if (silenceTimer) clearTimeout(silenceTimer); silenceTimer=setTimeout(()=>flushVoiceBuffer(), SILENCE_MS); }
-    function flushVoiceBuffer(){ if (silenceTimer){ clearTimeout(silenceTimer); silenceTimer=null; } const text=(input.value||voiceBuffer||'').trim(); if (!text) return; voiceBuffer=""; input.value=""; userMsg(text); route(text); }
+
+    function scheduleAutoSend(){
+      if (silenceTimer) clearTimeout(silenceTimer);
+      silenceTimer = setTimeout(()=>flushVoiceBuffer(), SILENCE_MS);
+    }
+    function flushVoiceBuffer(){
+      if (silenceTimer){ clearTimeout(silenceTimer); silenceTimer=null; }
+      const text = (input.value || lastTranscript || "").trim();
+      if (!text) return;
+      lastTranscript = "";
+      input.value = "";
+      userMsg(text);
+      route(text);
+    }
   })();
 
-  // ===== Router (ahora maneja TODOS los botones del overview)
+  // ===== Router
   function route(q){
     if (/^cancelar$/i.test(q.trim())) {
       if (flow.activo){
@@ -387,11 +415,11 @@ ${SERVIMIL.descr}
     }
 
     // Bots directo (del overview)
-    if (/^bots y asistentes ia$/.test(q.trim())) {
+    if (/^bots y asistentes ia$/i.test(q.trim())) {
       return botMsg(renderBotsWithPortfolio());
     }
 
-    // Servicios detallados: mostrar descripción específica
+    // Servicios detallados individuales
     if (/^branding$|dise[ñn]o de marca|logo|manual de marca/.test(qn)) return botMsg(KB.branding);
     if (/^contenido para redes$|reels|tiktok|shorts|post|posts/.test(qn)) return botMsg(KB.contenido);
     if (/^social media manager$|gesti[oó]n de redes|community/.test(qn)) return botMsg(KB.social);
@@ -409,10 +437,9 @@ ${SERVIMIL.descr}
     // Vista general
     if (/servicios|portafolio|cat[aá]logo|categor[ií]as|todo$/.test(qn)) return botMsg(KB.overview);
 
-    // Búsqueda difusa básica
+    // Fallback
     const hit = smallSearch(qn); if (hit) return botMsg(hit);
-
-    botMsg("Puedo mostrarte **Páginas web + Portafolio** o **Automatizaciones + Bots (Emilia)**, ver **cualquier servicio** en detalle, o iniciar **cotización**. " + CTA);
+    botMsg("Puedo mostrarte **Páginas web + Portafolio** o **Automatizaciones + Bots (Emilia)**, ver **cualquier servicio** en detalle, o iniciar **cotización**." + CTA);
   }
 
   // ===== Flujo de Cotización
@@ -485,7 +512,7 @@ Para **continuar con la cotización**, por favor **toca uno de estos botones**:
     try { persistConversationToServer({ nombre, servicios, empresa, telefono }); } catch(e) { console.warn('No se pudo guardar conversación:', e); }
   }
 
-  // ===== Guardado en servidor (si tienes el PHP en assets/save_conversation.php)
+  // ===== Guardado (opcional) en /assets/save_conversation.php
   function persistConversationToServer(lead){
     const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
     const payload = { when:new Date().toISOString(), page:location.href, userAgent:navigator.userAgent, lead, conversation: history };
@@ -496,7 +523,7 @@ Para **continuar con la cotización**, por favor **toca uno de estos botones**:
       .catch(err=>console.warn('Error guardando:',err));
   }
 
-  // ===== Búsqueda difusa rápida (fallback)
+  // ===== Fuzzy fallback
   function smallSearch(q){
     const pairs = [
       [renderWebWithPortfolio(), ["paginas web","páginas web","webs","portafolio de webs","trabajos web","sitios"]],
@@ -522,7 +549,7 @@ Para **continuar con la cotización**, por favor **toca uno de estos botones**:
     return score>0 ? best : null;
   }
 
-  // ===== Utilidades / persistencia local
+  // ===== Utils persistencia
   function isValidPhone(v){ const d = onlyDigits(v); return /^57\d{10}$/.test(d) || /^\d{10}$/.test(d); }
   function cleanPhone(v){ let d = onlyDigits(v); if (/^\d{10}$/.test(d)) d = "57"+d; return d; }
   function onlyDigits(s){ return (s||'').replace(/\D+/g,''); }
@@ -546,3 +573,5 @@ Para **continuar con la cotización**, por favor **toca uno de estos botones**:
   function saveFlowState(){ localStorage.setItem(FLOW_KEY, JSON.stringify(flow)); }
   function loadFlowState(){ try { return JSON.parse(localStorage.getItem(FLOW_KEY) || "null"); } catch { return null; } }
 });
+
+
