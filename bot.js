@@ -14,7 +14,7 @@ const QUOTE_KEY   = 'cdd_quote_leads_v1';
 const FLOW_KEY    = 'cdd_quote_flow_state_v1';
 
 /***** Contacto *****/
-const OFICIAL_PHONE = "573028618806";
+const OFICIAL_PHONE = "57320608864";
 const CTA_PHONE     = "573202608864";
 const OFICIAL_MAIL  = "centrodigitaldediseno@gmail.com";
 
