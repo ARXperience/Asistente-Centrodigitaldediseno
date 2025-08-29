@@ -1,4 +1,4 @@
-// bot.js — Catálogo unificado + Portafolio + Bot Servimil + Cotización + Voz + Delegación de eventos
+// bot.js — Catálogo + Portafolio + Bot Servimil + Cotización + Voz + Delegación de eventos segura
 
 /***** DOM *****/
 const msgs  = document.getElementById('messages');
@@ -14,8 +14,8 @@ const QUOTE_KEY   = 'cdd_quote_leads_v1';
 const FLOW_KEY    = 'cdd_quote_flow_state_v1';
 
 /***** Contacto *****/
-const OFICIAL_PHONE = "573028618806";                 // WhatsApp destino formal
-const CTA_PHONE     = "573202608864";                 // WhatsApp mostrado en CTA
+const OFICIAL_PHONE = "573028618806";
+const CTA_PHONE     = "573202608864";
 const OFICIAL_MAIL  = "centrodigitaldediseno@gmail.com";
 
 /***** Estado *****/
@@ -33,7 +33,7 @@ const PORTAFOLIO_WEB = [
   { nombre: "Premium Apps", url: "https://premiumappscol.wixsite.com/inicio", descr: "Sitio de apps premium (en construcción). APKs gratuitas por tiempo limitado.", extra: "" }
 ];
 
-/***** KB (catálogo organizado unificado) *****/
+/***** KB *****/
 const KB = {
   overview:
 `### Accesos rápidos
@@ -200,8 +200,8 @@ clear?.addEventListener('click', ()=>{
   botMsg("🧹 Historial limpio. ¿Escribes **cotizar** o vemos servicios?");
 });
 
-/***** Delegación de eventos (botones/links dinámicos dentro del chat) *****/
-// Enlaces dentro del chat con data-q (Accesos rápidos, Portafolio, Servimil…)
+/***** Delegación de eventos (botones dinámicos dentro del chat) *****/
+// 1) Enlaces con data-q (Accesos rápidos, Portafolio, Servimil…)
 msgs?.addEventListener('click', (e) => {
   const link = e.target.closest('a');
   if (!link) return;
@@ -211,7 +211,7 @@ msgs?.addEventListener('click', (e) => {
     userMsg(q); route(q);
   }
 });
-// Chips (por si se crean dinámicos en el futuro)
+// 2) Chips (por si en el futuro se crean dinámicamente)
 document.querySelector('.chips')?.addEventListener('click', (e)=>{
   const btn = e.target.closest('.chip');
   if (!btn) return;
@@ -221,7 +221,7 @@ document.querySelector('.chips')?.addEventListener('click', (e)=>{
   userMsg(q); route(q);
 });
 
-/***** Voz continua con auto-envío tras 1.5s de silencio *****/
+/***** Voz continua con auto-envío por silencio (1.5 s) *****/
 let rec = null, micActive = false;
 let voiceBuffer = "";
 let silenceTimer = null;
@@ -371,7 +371,7 @@ Para **continuar con la cotización**, por favor **toca uno de estos botones**:
 <a href="https://wa.me/${OFICIAL_PHONE}?text=${wappText}" target="_blank" style="${btn}">📲 WhatsApp Oficial</a>
 <a href="mailto:${OFICIAL_MAIL}?subject=Cotización&body=${mailBody}" style="${btn}">✉️ Email Oficial</a>
 
-**Resumen**
+**Resumen enviado**
 - **Servicios:** ${escapeHTML(servicios)}
 - **Empresa/Proyecto:** ${escapeHTML(empresa)}
 - **WhatsApp/Teléfono:** ${escapeHTML(telefono)}
@@ -390,13 +390,9 @@ Para **continuar con la cotización**, por favor **toca uno de estos botones**:
 function persistConversationToServer(lead){
   const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
   const payload = { when:new Date().toISOString(), page:location.href, userAgent:navigator.userAgent, lead, conversation: history };
-  // Debes crear assets/save_conversation.php para escribir JSONs en /assets/conversaciones con asistente/
-  fetch('assets/save_conversation.php', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(payload)
-  })
-  .then(r=>r.json()).then(res=>{ if(!res?.ok) console.warn('Guardado falló:',res); })
-  .catch(err=>console.warn('Error guardando:',err));
+  fetch('assets/save_conversation.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) })
+    .then(r=>r.json()).then(res=>{ if(!res?.ok) console.warn('Guardado falló:',res); })
+    .catch(err=>console.warn('Error guardando:',err));
 }
 
 /***** Buscador difuso *****/
