@@ -23,15 +23,36 @@
     @keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
     @keyframes fadeIn{from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none}}
 
-    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;display:flex;flex-direction:column;height:100vh;transition:background .3s,color .3s}
-    .top{padding:12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);position:relative;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent 60%)}
-    .top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--rainbow);background-size:200% 200%;animation:moveGradient 8s linear infinite;opacity:.7;filter:saturate(.9) blur(.3px)}
-    .brand{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:var(--rainbow);background-size:200% 200%;animation:moveGradient 8s linear infinite;font-weight:800;color:#0b0f14;box-shadow:0 0 0 1px #0002 inset,0 1px 6px rgba(0,0,0,.15)}
+    body{
+      margin:0;background:var(--bg);color:var(--text);
+      font-family:Inter,system-ui,sans-serif;
+      display:flex;flex-direction:column;height:100vh;
+      transition:background .3s,color .3s
+    }
+
+    .top{
+      padding:12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);
+      position:relative;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent 60%);
+    }
+    .top::after{
+      content:"";position:absolute;left:0;right:0;bottom:0;height:2px;
+      background:var(--rainbow);background-size:200% 200%;
+      animation:moveGradient 8s linear infinite;opacity:.7;filter:saturate(.9) blur(.3px);
+    }
+
+    .brand{
+      width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+      background:var(--rainbow);background-size:200% 200%;
+      animation:moveGradient 8s linear infinite;
+      font-weight:800;color:#0b0f14;
+      box-shadow:0 0 0 1px #0002 inset,0 1px 6px rgba(0,0,0,.15);
+    }
     .title{font-weight:700}
 
     .wrap{flex:1;display:flex;justify-content:center;overflow:auto}
     .col{width:100%;max-width:var(--maxw);padding:16px;display:flex;flex-direction:column}
     .messages{flex:1;display:flex;flex-direction:column;gap:12px;padding-bottom:10px}
+
     .row{display:flex;gap:10px}
     .avatar{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700}
     .assistant .avatar{background:#0a201a;color:#9dd8ff;border:1px solid #163a31}
@@ -53,8 +74,14 @@
     }
     .user .bubble{background:var(--user);border-color:var(--border);box-shadow:0 0 0 1px #0002 inset}
 
+    .bubble img{max-width:100%;height:auto;border-radius:12px;display:block}
+    .fade-in{animation:fadeIn .9s ease both}
+
     .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
-    .chip{padding:6px 12px;border:1px solid var(--border);border-radius:999px;background:transparent;color:var(--text);cursor:pointer;transition:.2s transform,.2s border-color,.2s background-color}
+    .chip{
+      padding:6px 12px;border:1px solid var(--border);border-radius:999px;background:transparent;color:var(--text);cursor:pointer;
+      transition:.2s transform,.2s border-color,.2s background-color;
+    }
     .chip:hover{transform:translateY(-1px);border-color:#2f3a46;background:#0e141b}
     [data-theme="light"] .chip:hover{background:#f3f4f6}
 
@@ -65,6 +92,7 @@
     [data-theme="dark"] .input{background:#0f1720}
     .send{background:var(--accent);border:none;padding:0 14px;border-radius:12px;font-weight:700;cursor:pointer;color:#fff;box-shadow:0 8px 18px rgba(16,163,127,.22)}
 
+    /* Markdown */
     .bubble h1,.bubble h2,.bubble h3{margin:6px 0 8px;font-weight:700}
     .bubble h1{font-size:18px}.bubble h2{font-size:16px}.bubble h3{font-size:15px}
     .bubble p{margin:8px 0}
@@ -72,8 +100,6 @@
     .bubble code{font-family:"JetBrains Mono",ui-monospace,monospace;background:var(--code-bg);border:1px solid var(--code-br);padding:2px 6px;border-radius:8px}
     pre{background:var(--code-bg);border:1px solid var(--code-br);padding:12px;border-radius:12px;overflow:auto;margin:8px 0}
     pre code{background:none;border:none;padding:0;white-space:pre-wrap}
-    .bubble img{max-width:100%;height:auto;border-radius:12px;display:block}
-    .fade-in{animation:fadeIn .9s ease both}
 
     .code-head{display:flex;justify-content:space-between;align-items:center;margin-top:6px;color:var(--muted);font-size:12px}
     .copy{border:1px solid var(--border);background:transparent;color:var(--text);border-radius:10px;padding:6px 10px;cursor:pointer}
@@ -85,24 +111,37 @@
     .bar{display:flex;gap:8px;align-items:center;margin-bottom:8px}
     .ghost-sm{border:1px solid var(--border);background:transparent;color:var(--text);padding:6px 10px;border-radius:10px;font-size:13px;cursor:pointer}
 
+    /* Botón tema arcoíris */
     #themeToggle{
       position:relative;border:1px solid transparent;border-radius:10px;
       background:linear-gradient(var(--surface),var(--surface)) padding-box, var(--rainbow) border-box;
       background-size:200% 200%;animation:moveGradient 8s linear infinite;
       color:var(--text);box-shadow:0 1px 6px rgba(0,0,0,.08);
-      transition:transform .15s ease,filter .15s ease
+      transition:transform .15s ease,filter .15s ease;
     }
     [data-theme="dark"] #themeToggle{box-shadow:0 1px 6px rgba(0,0,0,.35)}
     #themeToggle:hover{transform:translateY(-1px);filter:brightness(1.03)}
     #themeToggle:active{transform:translateY(0);filter:brightness(.98)}
     #themeToggle:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(71,178,255,.18)}
 
-    /* Intro full-screen */
-    .intro-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:#fff;pointer-events:none;opacity:1;transition:opacity .8s ease}
-    .intro-overlay.hide{opacity:0}
-    .intro-video{width:min(86vmin,720px);height:min(86vmin,720px);object-fit:cover;-webkit-mask-image:radial-gradient(circle at 50% 50%,rgba(0,0,0,1) 66%,rgba(0,0,0,0) 84%);mask-image:radial-gradient(circle at 50% 50%,rgba(0,0,0,1) 66%,rgba(0,0,0,0) 84%)}
-    @media (max-width:767px){ .intro-video{width:min(86vmin,540px);height:min(86vmin,540px)} }
-    @media (prefers-reduced-motion:reduce){ .intro-overlay{display:none !important} }
+    /* ===== INTRO: bola de “humo arcoíris” con borde difuminado ===== */
+    .intro-overlay{
+      position:fixed; inset:0; z-index:9999;
+      display:flex; align-items:center; justify-content:center;
+      background:#fff;             /* fondo blanco */
+      pointer-events:none; opacity:1; transition:opacity .8s ease;
+    }
+    .intro-overlay.hide{ opacity:0 }
+    .intro-video{
+      width:min(86vmin,720px); height:min(86vmin,720px);
+      object-fit:cover;
+      -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 66%, rgba(0,0,0,0) 84%);
+              mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 66%, rgba(0,0,0,0) 84%);
+    }
+    @media (max-width:767px){
+      .intro-video{ width:min(86vmin,540px); height:min(86vmin,540px); }
+    }
+    @media (prefers-reduced-motion:reduce){ .intro-overlay{ display:none !important } }
   </style>
 </head>
 <body>
@@ -145,7 +184,7 @@
     </div>
   </div>
 
-  <!-- Intro -->
+  <!-- Intro: selecciona video por tamaño -->
   <div id="intro" class="intro-overlay" aria-hidden="true">
     <video id="introVideo" class="intro-video" autoplay muted playsinline preload="auto">
       <source src="assets/Intro.webm" type="video/webm" media="(min-width:768px)">
@@ -165,18 +204,19 @@
         btn.textContent = next === 'light' ? '🌙 Tema' : '☀️ Tema';
       });
     })();
-    // Intro
+
+    // Control intro (ocultar por fin de video o timeout)
     (function(){
       const overlay = document.getElementById('intro');
       const video   = document.getElementById('introVideo');
       const reduce  = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (!overlay || !video || reduce){ if (overlay) overlay.remove(); return; }
       video.muted = true; video.play().catch(()=>{});
-      const SAFE_TIMEOUT_MS = 6500;
+      const SAFE_TIMEOUT_MS = 6500;              // ajusta a la duración real
       const t = setTimeout(hideIntro, SAFE_TIMEOUT_MS);
       video.addEventListener('ended', hideIntro);
       video.addEventListener('error', hideIntro);
-      function hideIntro(){ clearTimeout(t); overlay.classList.add('hide'); setTimeout(()=>overlay.remove(),700); }
+      function hideIntro(){ clearTimeout(t); overlay.classList.add('hide'); setTimeout(()=>overlay.remove(), 700); }
     })();
   </script>
 </body>
