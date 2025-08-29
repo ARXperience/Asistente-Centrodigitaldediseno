@@ -1,4 +1,5 @@
-// bot.js — Servicios por chip + Webs con portafolio + Automatizaciones incluyen Bots (Emilia) + cotización + voz + guardado
+
+// bot.js — Servicios por botón + Webs con portafolio + Automatizaciones incluyen Bots (Emilia) + cotización + voz + guardado
 
 document.addEventListener('DOMContentLoaded', () => {
   const msgs  = document.getElementById('messages');
@@ -69,7 +70,6 @@ Arquitectura preparada para escalado y conversión.`,
   // ===== Portafolio: Bots (Emilia / Servimil)
   const SERVIMIL = {
     nombre: "Emilia (Servimil)",
-    // Link que compartiste (puede que algunos navegadores no lo muestren por ser URL indirecta)
     img: "https://www.google.com/url?sa=i&url=https%3A%2F%2Fservimil.co%2F&psig=AOvVaw1T_CIc1DJ7FB3-M-Q3DqEW&ust=1756509440126000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCICNhbLSro8DFQAAAAAdAAAAABAE",
     phone: "573157019885",
     textoWapp: "Hola Emilia, quiero información",
@@ -88,6 +88,19 @@ Selecciona qué deseas ver:
 
 <a href="#" data-q="Páginas web" style="${BTN}">🖥️ Páginas web + Portafolio</a>
 <a href="#" data-q="Automatizaciones" style="${BTN}">⚙️ Automatizaciones + Bots</a>
+<a href="#" data-q="Bots y Asistentes IA" style="${BTN}">🤖 Bots + Portafolio</a>
+
+<a href="#" data-q="Branding" style="${BTN}">🎨 Branding</a>
+<a href="#" data-q="Contenido para redes" style="${BTN}">📱 Contenido para redes</a>
+<a href="#" data-q="Social Media Manager" style="${BTN}">👥 Social Media Manager</a>
+<a href="#" data-q="SEO" style="${BTN}">🔎 SEO</a>
+<a href="#" data-q="Campañas Ads" style="${BTN}">💡 Campañas Ads</a>
+<a href="#" data-q="Estrategias de marketing" style="${BTN}">📈 Estrategias de marketing</a>
+<a href="#" data-q="Fotografía de producto" style="${BTN}">📷 Fotografía de producto</a>
+<a href="#" data-q="Contenido con IA" style="${BTN}">🎬 Contenido con IA</a>
+<a href="#" data-q="Embudos y Realidad Aumentada" style="${BTN}">🧭 Embudos & RA</a>
+<a href="#" data-q="Apps Premium" style="${BTN}">🟣 Apps Premium</a>
+
 <a href="https://gold-snail-248674.hostingersite.com/chatbot.html" target="_blank" style="${BTN}">🆓 Crear agente gratis</a>
 <a href="#" data-q="Cotizar" style="${BTN}">💬 Cotizar ahora</a>
 ${CTA}`,
@@ -98,6 +111,55 @@ ${CTA}`,
 - **SEO técnico** y Core Web Vitals
 - Integración con **WhatsApp, CRM y analítica**
 - Optimización de **copy** y **estructura** para conversión
+${CTA}`,
+
+    branding:
+`### Branding y diseño de marca
+- **Identidad visual**, **logo** y **sistema de marca**
+- **Manual de marca** (uso, tipografía, color, aplicaciones)
+- Paquetes de **aplicaciones** (RRSS, papelería, ads)
+${CTA}`,
+
+    contenido:
+`### Contenido para redes
+- **Posts**, **carruseles** y **video corto** (Reels/TikTok/Shorts)
+- **Guion** + edición + **calendarización**
+- Métricas y optimización continua
+${CTA}`,
+
+    social:
+`### Social Media Manager
+- Gestión de **comunidad** y crecimiento orgánico
+- Estrategia por **plataforma** y frecuencia
+- Reporting y **mejora continua** por datos
+${CTA}`,
+
+    seo:
+`### SEO (web + social)
+- Auditoría técnica, on-page y contenidos
+- Estrategia de **keywords** + **blog** para SEO
+- Apoyo en **indexación** y **buenas prácticas**
+${CTA}`,
+
+    ads:
+`### Campañas publicitarias (Ads)
+- **Meta**, **Google** y **TikTok** Ads
+- Creativos, segmentación, **A/B testing**
+- Escalado por **ROAS** y objetivos
+${CTA}`,
+
+    marketing:
+`### Estrategias de marketing & funnels
+- Embudos (tráfico → lead → venta → fidelización)
+- **Automatizaciones** y nurture por etapas
+- **Dashboards** y KPIs de negocio
+${CTA}`,
+
+    fotografia:
+`### Fotografía de producto
+- Foto y **micro-video** comercial
+- Retoque y **formatos** por plataforma
+- Preparación para **catálogo** y **ads**
 ${CTA}`,
 
     auto_ia:
@@ -112,6 +174,27 @@ ${CTA}`,
 - Asistentes en **WhatsApp/IG/Messenger**
 - **Bots de llamadas** con traspaso a asesor
 - Calificación de **leads** + CRM
+${CTA}`,
+
+    contenido_ia:
+`### Contenido con IA (video e imagen)
+- Videos **publicitarios/explicativos/conceptuales**
+- Generación de **imágenes** y assets creativos
+- Producción híbrida **IA + edición** profesional
+${CTA}`,
+
+    embudos_ra:
+`### Embudos automatizados y Realidad Aumentada
+- Captura → **nurturing** → conversión con IA
+- Experiencias **AR** para promoción/retail
+- Medición y optimización
+${CTA}`,
+
+    apps_premium:
+`### Apps Premium
+- Licencias (VPN, YouTube Premium, PhotoRoom, etc.)
+- Gestión de **cuentas** y soporte a equipos
+- Onboarding y **buenas prácticas**
 ${CTA}`,
 
     cotiz:
@@ -135,7 +218,7 @@ ${CTA}`
     const text = encodeURIComponent(SERVIMIL.textoWapp);
     return `### Portafolio — Bots
 **${SERVIMIL.nombre}**
-<img src="${SERVIMIL.img}" alt="${SERVIMIL.nombre}" style="max-width:100%;border-radius:14px;opacity:.96;display:block;margin:8px 0" />
+<img src="${SERVIMIL.img}" alt="${SERVIMIL.nombre}" style="max-width:100%;border-radius:14px;opacity:.96;display:block;margin:8px 0;animation:fadeIn .6s ease both" />
 
 ${SERVIMIL.descr}
 
@@ -149,6 +232,9 @@ ${SERVIMIL.descr}
   function renderAutomatizacionesWithBots(){
     // Al pedir "Automatizaciones" mostramos AUTOMATIZACIONES + BOTS + Portafolio (Emilia)
     return `${KB.auto_ia}\n\n${KB.bots_ia}\n\n${renderPortafolioBots()}\n${CTA}`;
+  }
+  function renderBotsWithPortfolio(){
+    return `${KB.bots_ia}\n\n${renderPortafolioBots()}\n${CTA}`;
   }
 
   // ===== Render + Markdown
@@ -277,7 +363,7 @@ ${SERVIMIL.descr}
     function flushVoiceBuffer(){ if (silenceTimer){ clearTimeout(silenceTimer); silenceTimer=null; } const text=(input.value||voiceBuffer||'').trim(); if (!text) return; voiceBuffer=""; input.value=""; userMsg(text); route(text); }
   })();
 
-  // ===== Router
+  // ===== Router (ahora maneja TODOS los botones del overview)
   function route(q){
     if (/^cancelar$/i.test(q.trim())) {
       if (flow.activo){
@@ -290,26 +376,43 @@ ${SERVIMIL.descr}
 
     const qn = norm(q);
 
-    // CHIP: Páginas web → servicio + portafolio
+    // Webs → servicio + portafolio
     if (/(^|\b)(paginas web|p[aá]ginas web|webs|portafolio de webs|trabajos web|sitios)(\b|$)/.test(qn)) {
       return botMsg(renderWebWithPortfolio());
     }
 
-    // CHIP: Automatizaciones → automatizaciones + bots + portafolio (Emilia)
+    // Automatizaciones → automatizaciones + bots + portafolio (Emilia)
     if (/(^|\b)(automatizaciones|manychat|make|bot|bots|asistentes ia)(\b|$)/.test(qn)) {
       return botMsg(renderAutomatizacionesWithBots());
     }
 
-    // CHIP: Servicios / Portafolio general
-    if (/servicios|portafolio|cat[aá]logo|categor[ií]as|todo$/.test(qn)) return botMsg(KB.overview);
+    // Bots directo (del overview)
+    if (/^bots y asistentes ia$/.test(q.trim())) {
+      return botMsg(renderBotsWithPortfolio());
+    }
+
+    // Servicios detallados: mostrar descripción específica
+    if (/^branding$|dise[ñn]o de marca|logo|manual de marca/.test(qn)) return botMsg(KB.branding);
+    if (/^contenido para redes$|reels|tiktok|shorts|post|posts/.test(qn)) return botMsg(KB.contenido);
+    if (/^social media manager$|gesti[oó]n de redes|community/.test(qn)) return botMsg(KB.social);
+    if (/^seo$|\bposicionamiento\b/.test(qn)) return botMsg(KB.seo);
+    if (/^campañas ads$|ads|anuncios|google|meta|tiktok/.test(qn)) return botMsg(KB.ads);
+    if (/^estrategias de marketing$|funnel|embudo|growth/.test(qn)) return botMsg(KB.marketing);
+    if (/^fotograf[ií]a de producto$|foto de producto/.test(qn)) return botMsg(KB.fotografia);
+    if (/^contenido con ia$|video ia|imagen ia|audiovisual ia/.test(qn)) return botMsg(KB.contenido_ia);
+    if (/^embudos y realidad aumentada$|embudos automatizados|realidad aumentada|^ra$/.test(qn)) return botMsg(KB.embudos_ra);
+    if (/^apps premium$|vpn|youtube premium|photoroom/.test(qn)) return botMsg(KB.apps_premium);
 
     // Cotización
     if (/cotiz|presupuesto|precio|cu[aá]nto vale|cu[aá]nto cuesta/.test(qn)) { startCotizacion(); return; }
 
-    // Búsqueda difusa
+    // Vista general
+    if (/servicios|portafolio|cat[aá]logo|categor[ií]as|todo$/.test(qn)) return botMsg(KB.overview);
+
+    // Búsqueda difusa básica
     const hit = smallSearch(qn); if (hit) return botMsg(hit);
 
-    botMsg("Puedo mostrarte **Páginas web + Portafolio** o **Automatizaciones + Bots (Emilia)**, o iniciar **cotización**. " + CTA);
+    botMsg("Puedo mostrarte **Páginas web + Portafolio** o **Automatizaciones + Bots (Emilia)**, ver **cualquier servicio** en detalle, o iniciar **cotización**. " + CTA);
   }
 
   // ===== Flujo de Cotización
@@ -393,11 +496,21 @@ Para **continuar con la cotización**, por favor **toca uno de estos botones**:
       .catch(err=>console.warn('Error guardando:',err));
   }
 
-  // ===== Búsqueda difusa
+  // ===== Búsqueda difusa rápida (fallback)
   function smallSearch(q){
     const pairs = [
       [renderWebWithPortfolio(), ["paginas web","páginas web","webs","portafolio de webs","trabajos web","sitios"]],
       [renderAutomatizacionesWithBots(), ["automatizaciones","manychat","make","bot","bots","asistentes ia","servimil","emilia"]],
+      [KB.branding,["branding","marca","logo","manual"]],
+      [KB.contenido,["contenido","reels","tiktok","shorts","post","posts"]],
+      [KB.social,["social media","smm","gestion redes","gestión redes","community"]],
+      [KB.seo,["seo","posicionamiento"]],
+      [KB.ads,["ads","campañas","anuncios","google","meta","tiktok"]],
+      [KB.marketing,["marketing","funnel","embudo","growth","estrategia"]],
+      [KB.fotografia,["foto","fotografia","fotografía","producto"]],
+      [KB.contenido_ia,["contenido ia","video ia","imagen ia","audiovisual ia"]],
+      [KB.embudos_ra,["embudos automatizados","realidad aumentada","ra"]],
+      [KB.apps_premium,["apps premium","vpn","youtube premium","photoroom"]],
       [KB.cotiz,["cotiz","presupuesto","precio","cuanto vale","cuánto vale","cuanto cuesta","cuánto cuesta"]],
       [KB.overview,["servicios","portafolio","catalogo","catálogo","categorias","categorías","todo"]]
     ];
@@ -409,7 +522,7 @@ Para **continuar con la cotización**, por favor **toca uno de estos botones**:
     return score>0 ? best : null;
   }
 
-  // ===== Validaciones / persistencia local
+  // ===== Utilidades / persistencia local
   function isValidPhone(v){ const d = onlyDigits(v); return /^57\d{10}$/.test(d) || /^\d{10}$/.test(d); }
   function cleanPhone(v){ let d = onlyDigits(v); if (/^\d{10}$/.test(d)) d = "57"+d; return d; }
   function onlyDigits(s){ return (s||'').replace(/\D+/g,''); }
