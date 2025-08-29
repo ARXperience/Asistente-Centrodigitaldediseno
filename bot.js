@@ -1,4 +1,4 @@
-// bot.js — Catálogo unificado + portafolio + bot Servimil + flujo de cotización + CTA + chips + autoscroll + voz
+// bot.js — Catálogo unificado + Portafolio + Bot Servimil + Cotización + Voz + Delegación de eventos
 
 /***** DOM *****/
 const msgs  = document.getElementById('messages');
@@ -14,8 +14,8 @@ const QUOTE_KEY   = 'cdd_quote_leads_v1';
 const FLOW_KEY    = 'cdd_quote_flow_state_v1';
 
 /***** Contacto *****/
-const OFICIAL_PHONE = "573028618806";                 // WhatsApp al que llega la info
-const CTA_PHONE     = "573202608864";                 // Teléfono mostrado en CTA
+const OFICIAL_PHONE = "573028618806";                 // WhatsApp destino formal
+const CTA_PHONE     = "573202608864";                 // WhatsApp mostrado en CTA
 const OFICIAL_MAIL  = "centrodigitaldediseno@gmail.com";
 
 /***** Estado *****/
@@ -25,35 +25,15 @@ let flow = loadFlowState() || { activo:false, paso:0, datos:{ nombre:"", servici
 const CTA = `\n\n**¿Quieres cotizar tu proyecto?** Escribe **cotizar** o contáctanos: **+${CTA_PHONE}** · **${OFICIAL_MAIL}**`;
 const BTN = "display:inline-block;margin:6px 8px 0 0;background:#10a37f;color:#fff;text-decoration:none;padding:10px 14px;border-radius:12px;font-weight:700;font-size:14px";
 
-/***** Portafolio (páginas web) *****/
+/***** Portafolio *****/
 const PORTAFOLIO_WEB = [
-  {
-    nombre: "Marketflix.com.co",
-    url: "https://marketflix.com.co",
-    descr: "Inicio de sesión con base de datos para autenticación. Interactiva/multimedia. Envío de correos.",
-    extra: "Credenciales demo — Correo: centro@admin · Contraseña: admin"
-  },
-  {
-    nombre: "Volservice",
-    url: "https://centrodigitaldedis.wixsite.com/volservice",
-    descr: "Sitio con tienda, experiencia interactiva/multimedia, blog para SEO orgánico, correo e indexación.",
-    extra: ""
-  },
-  {
-    nombre: "Almaverde",
-    url: "https://almaverde.com.co/",
-    descr: "Portafolio comercial: proyectos, captación de leads, correos electrónicos, blog con artículos (SEO, indexación).",
-    extra: ""
-  },
-  {
-    nombre: "Premium Apps",
-    url: "https://premiumappscol.wixsite.com/inicio",
-    descr: "Sitio de apps premium (en construcción). APKs gratuitas por tiempo limitado.",
-    extra: ""
-  }
+  { nombre: "Marketflix.com.co", url: "https://marketflix.com.co", descr: "Inicio de sesión con base de datos para autenticación. Interactiva/multimedia. Envío de correos.", extra: "Credenciales demo — Correo: centro@admin · Contraseña: admin" },
+  { nombre: "Volservice", url: "https://centrodigitaldedis.wixsite.com/volservice", descr: "Sitio con tienda, experiencia interactiva/multimedia, blog para SEO orgánico, correo e indexación.", extra: "" },
+  { nombre: "Almaverde", url: "https://almaverde.com.co/", descr: "Portafolio comercial: proyectos, captación de leads, correos electrónicos, blog con artículos (SEO, indexación).", extra: "" },
+  { nombre: "Premium Apps", url: "https://premiumappscol.wixsite.com/inicio", descr: "Sitio de apps premium (en construcción). APKs gratuitas por tiempo limitado.", extra: "" }
 ];
 
-/***** KB *****/
+/***** KB (catálogo organizado unificado) *****/
 const KB = {
   overview:
 `### Accesos rápidos
@@ -174,7 +154,7 @@ Trabajamos **por alcance y objetivos** (web/branding/IA/ads).
 ${CTA}`
 };
 
-/***** Helpers de render para portafolio *****/
+/***** Render helpers *****/
 function renderPortafolioWeb(){
   let out = `### Portafolio — Páginas web`;
   PORTAFOLIO_WEB.forEach(p => {
@@ -185,8 +165,6 @@ ${p.descr}${p.extra ? `\n_${p.extra}_` : ''}
   out += `\n${CTA}`;
   return out;
 }
-
-/***** Sección Bot Servimil (con imagen + CTA WhatsApp) *****/
 function renderBotServimil(){
   const servimilImg = "https://www.google.com/url?sa=i&url=https%3A%2F%2Fservimil.co%2F&psig=AOvVaw1T_CIc1DJ7FB3-M-Q3DqEW&ust=1756509440126000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCICNhbLSro8DFQAAAAAdAAAAABAE";
   const phone = "5731157019885";
@@ -206,16 +184,13 @@ if (historyEmpty()) {
   botMsg(KB.overview);
 }
 
-/***** Listeners *****/
+/***** Listeners base *****/
 send?.addEventListener('click', () => {
   const txt = input.value.trim(); if (!txt) return;
   input.value = ""; userMsg(txt); route(txt);
 });
 input?.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send?.click(); }
-});
-document.querySelectorAll('.chip').forEach(c=>{
-  c.addEventListener('click', ()=>{ userMsg(c.dataset.q); route(c.dataset.q); });
 });
 clear?.addEventListener('click', ()=>{
   localStorage.removeItem(STORAGE_KEY);
@@ -224,12 +199,29 @@ clear?.addEventListener('click', ()=>{
   flow = { activo:false, paso:0, datos:{nombre:"",servicios:"",empresa:"",telefono:""} };
   botMsg("🧹 Historial limpio. ¿Escribes **cotizar** o vemos servicios?");
 });
-msgs?.addEventListener('click', e=>{
-  const el = e.target.closest('[data-q].inline-cta');
-  if (el){ e.preventDefault(); const q=el.getAttribute('data-q')||''; if(q){ userMsg(q); route(q);} }
+
+/***** Delegación de eventos (botones/links dinámicos dentro del chat) *****/
+// Enlaces dentro del chat con data-q (Accesos rápidos, Portafolio, Servimil…)
+msgs?.addEventListener('click', (e) => {
+  const link = e.target.closest('a');
+  if (!link) return;
+  const q = link.getAttribute('data-q');
+  if (q) {
+    e.preventDefault(); e.stopPropagation();
+    userMsg(q); route(q);
+  }
+});
+// Chips (por si se crean dinámicos en el futuro)
+document.querySelector('.chips')?.addEventListener('click', (e)=>{
+  const btn = e.target.closest('.chip');
+  if (!btn) return;
+  const q = btn.dataset.q || btn.getAttribute('data-q');
+  if (!q) return;
+  e.preventDefault(); e.stopPropagation();
+  userMsg(q); route(q);
 });
 
-/***** Voz continua con auto-envío por silencio (1.5 s) *****/
+/***** Voz continua con auto-envío tras 1.5s de silencio *****/
 let rec = null, micActive = false;
 let voiceBuffer = "";
 let silenceTimer = null;
@@ -296,8 +288,8 @@ function route(q){
   if (flow.activo){ handleCotizacion(q); return; }
 
   const qn = norm(q);
-  if (/^servicios$|cat[aá]logo|categor[ií]as|todo$/.test(qn)) return botMsg(KB.overview);
 
+  if (/^servicios$|cat[aá]logo|categor[ií]as|todo$/.test(qn)) return botMsg(KB.overview);
   if (/p[aá]gina|web|ecommerce|tienda|landing/.test(qn)) return botMsg(KB.web);
   if (/branding|marca|logo|manual/.test(qn)) return botMsg(KB.branding);
   if (/foto|fotograf/.test(qn)) return botMsg(KB.fotografia);
@@ -321,10 +313,10 @@ function route(q){
   if (/servimil|probar.*servimil|bot servimil|probar bot/.test(qn)) return botMsg(renderBotServimil());
 
   const hit = smallSearch(qn); if (hit) return botMsg(hit);
-  botMsg("Puedo ayudarte con cualquier categoría del **catálogo**, mostrar el **portafolio** o iniciar **cotización**. " + CTA);
+  botMsg("Puedo ayudarte con el **catálogo**, el **portafolio** o iniciar **cotización**. " + CTA);
 }
 
-/***** Flujo de Cotización *****/
+/***** Flujo de cotización *****/
 function startCotizacion(){
   flow = { activo:true, paso:1, datos:{ nombre:"", servicios:"", empresa:"", telefono:"" } };
   saveFlowState();
@@ -379,7 +371,7 @@ Para **continuar con la cotización**, por favor **toca uno de estos botones**:
 <a href="https://wa.me/${OFICIAL_PHONE}?text=${wappText}" target="_blank" style="${btn}">📲 WhatsApp Oficial</a>
 <a href="mailto:${OFICIAL_MAIL}?subject=Cotización&body=${mailBody}" style="${btn}">✉️ Email Oficial</a>
 
-**Resumen enviado**
+**Resumen**
 - **Servicios:** ${escapeHTML(servicios)}
 - **Empresa/Proyecto:** ${escapeHTML(empresa)}
 - **WhatsApp/Teléfono:** ${escapeHTML(telefono)}
@@ -398,9 +390,13 @@ Para **continuar con la cotización**, por favor **toca uno de estos botones**:
 function persistConversationToServer(lead){
   const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
   const payload = { when:new Date().toISOString(), page:location.href, userAgent:navigator.userAgent, lead, conversation: history };
-  fetch('assets/save_conversation.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) })
-    .then(r=>r.json()).then(res=>{ if(!res?.ok) console.warn('Guardado falló:',res); })
-    .catch(err=>console.warn('Error guardando:',err));
+  // Debes crear assets/save_conversation.php para escribir JSONs en /assets/conversaciones con asistente/
+  fetch('assets/save_conversation.php', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  })
+  .then(r=>r.json()).then(res=>{ if(!res?.ok) console.warn('Guardado falló:',res); })
+  .catch(err=>console.warn('Error guardando:',err));
 }
 
 /***** Buscador difuso *****/
@@ -434,7 +430,7 @@ function smallSearch(q){
   return score>0 ? best : null;
 }
 
-/***** Render + markdown simple *****/
+/***** Render y markdown *****/
 function render(role, mdText){
   const row = document.createElement("div");
   row.className = "row " + (role === "assistant" ? "assistant" : "user");
@@ -461,10 +457,4 @@ function render(role, mdText){
   bub.querySelectorAll("pre").forEach(pre=>{
     const head=document.createElement("div"); head.className="code-head"; head.innerHTML=`<span>código</span>`;
     const btn=document.createElement("button"); btn.className="copy"; btn.textContent="Copiar";
-    btn.addEventListener("click", ()=>{ const code=pre.querySelector("code")?.innerText||pre.innerText; navigator.clipboard.writeText(code); btn.textContent="Copiado ✓"; setTimeout(()=>btn.textContent="Copiar",1100); });
-    pre.parentNode.insertBefore(head, pre); head.appendChild(btn);
-  });
-
-  row.appendChild(av); row.appendChild(bub); msgs.appendChild(row);
-  requestAnimationFrame(()=>{ msgs.scrollTop = msgs.scrollHeight; });
-  saveToHistory(role, mdText
+    btn.addEventListener("click", ()=>{ const code=pre.querySelector("code")?.innerText||pre.innerText; navigator.clipboard.writeText(code); btn.textContent="C
