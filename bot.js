@@ -453,4 +453,83 @@ Para **continuar con la cotización**, por favor **toca uno de estos botones**:
 > Si necesitas corregir algo, escribe **cotizar** para iniciar nuevamente.`;
 
     flow = { activo:false, paso:0, datos:{nombre:"",servicios:"",empresa:"",telefono:""} };
-    saveFlowS
+    saveFlowState();
+    botMsg(resumen);
+    botMsg(KB.cotiz);
+
+    try { persistConversationToServer({ nombre, servicios, empresa, telefono }); } catch(e) { console.warn('No se pudo guardar conversación:', e); }
+  }
+
+  /* ======= Guardado en servidor (PHP) ======= */
+  function persistConversationToServer(lead){
+    const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    const payload = { when:new Date().toISOString(), page:location.href, userAgent:navigator.userAgent, lead, conversation: history };
+    fetch('assets/save_conversation.php', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    })
+    .then(r=>r.json()).then(res=>{ if(!res?.ok) console.warn('Guardado falló:',res); })
+    .catch(err=>console.warn('Error guardando:',err));
+  }
+
+  /* ======= Búsqueda difusa ======= */
+  function smallSearch(q){
+    const pairs = [
+      [KB.web,["web","ecommerce","tienda","landing","sitio"]],
+      [KB.branding,["branding","marca","logo","manual"]],
+      [KB.fotografia,["foto","fotografia","fotografía","producto"]],
+      [KB.contenido,["contenido","reels","tiktok","shorts","post","posts"]],
+      [KB.social,["social media","smm","gestion redes","gestión redes","community"]],
+      [KB.seo,["seo","posicionamiento"]],
+      [KB.ads,["ads","campañas","anuncios","google","meta","tiktok"]],
+      [KB.marketing,["marketing","funnel","embudo","growth","estrategia"]],
+      [KB.auto_ia,["automatizacion ia","automatización ia"]],
+      [KB.bots_ia,["bots ia","asistentes ia","llamadas ia"]],
+      [KB.contenido_ia,["contenido ia","video ia","imagen ia"]],
+      [KB.embudos_ra,["embudos automatizados","realidad aumentada","ra"]],
+      [KB.apps_premium,["apps premium","vpn","youtube premium","photoroom"]],
+      [KB.mkt_ia,["marketing ia","predictivo","personalizacion","personalización"]],
+      [KB.agente,["agente gratis","crear agente","chatbot gratis"]],
+      [renderPortafolioWeb(),["portafolio","trabajos","proyectos","webs realizadas"]],
+      [renderBotServimil(),["servimil","probar servimil","bot servimil","probar bot"]],
+      [KB.overview,["servicios","catalogo","catálogo","categorias","categorías","todo"]],
+      [KB.cotiz,["cotiz","presupuesto","precio","cuanto vale","cuánto vale","cuanto cuesta","cuánto cuesta"]],
+    ];
+    let best=null,score=0;
+    pairs.forEach(([text,keys])=>{
+      const s = keys.reduce((acc,k)=> acc + (q.includes(k)?1:0), 0);
+      if (s>score){score=s; best=text;}
+    });
+    return score>0 ? best : null;
+  }
+
+  /* ======= Validaciones ======= */
+  function isValidPhone(v){ const d = onlyDigits(v); return /^57\d{10}$/.test(d) || /^\d{10}$/.test(d); }
+  function cleanPhone(v){ let d = onlyDigits(v); if (/^\d{10}$/.test(d)) d = "57"+d; return d; }
+  function onlyDigits(s){ return (s||'').replace(/\D+/g,''); }
+
+  /* ======= Persistencia local ======= */
+  function saveToHistory(role, text){
+    const arr = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    arr.push({ role, text, t: Date.now() });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+  }
+  function restoreHistory(){
+    const arr = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    if (!arr.length) return;
+    arr.forEach(m => { m.role === 'assistant' ? botMsg(m.text) : userMsg(m.text); });
+    const savedFlow = loadFlowState();
+    if (savedFlow?.activo){
+      flow = savedFlow;
+      botMsg("Teníamos un **flujo de cotización** pendiente. ¿Deseas **continuar**? Escribe `cancelar` para salir.");
+    }
+  }
+  function historyEmpty(){
+    const arr = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    return arr.length === 0;
+  }
+  function saveFlowState(){ localStorage.setItem(FLOW_KEY, JSON.stringify(flow)); }
+  function loadFlowState(){ try { return JSON.parse(localStorage.getItem(FLOW_KEY) || "null"); } catch { return null; } }
+
+  console.log('[bot.js] Asistente iniciado correctamente ✅');
+});
