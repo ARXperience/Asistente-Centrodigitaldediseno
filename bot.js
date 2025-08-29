@@ -1,4 +1,4 @@
-// bot.js — Portafolio unido a cada categoría (Webs/Bots) + descripciones + flujo cotización + voz + guardado
+// bot.js — Servicios por chip + Webs con portafolio + Automatizaciones incluyen Bots (Emilia) + cotización + voz + guardado
 
 document.addEventListener('DOMContentLoaded', () => {
   const msgs  = document.getElementById('messages');
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const QUOTE_KEY   = 'cdd_quote_leads_v1';
   const FLOW_KEY    = 'cdd_quote_flow_state_v1';
 
-  const OFICIAL_PHONE = "573202608864";       // WhatsApp oficial para cotización
+  const OFICIAL_PHONE = "573028618806";       // WhatsApp oficial para cotización
   const CTA_PHONE     = "573202608864";       // WhatsApp mostrado en CTA
   const OFICIAL_MAIL  = "centrodigitaldediseno@gmail.com";
 
@@ -28,14 +28,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===== Estado de flujo
   let flow = loadFlowState() || { activo:false, paso:0, datos:{ nombre:"", servicios:"", empresa:"", telefono:"" } };
 
-  // ===== Portafolio: Webs (detallado)
+  // ===== Portafolio: Webs
   const PORTAFOLIO_WEB = [
     {
       nombre: "Marketflix.com.co",
       url: "https://marketflix.com.co",
       descr:
-`**Plataforma con autenticación** y manejo de **base de datos** para usuarios.
-**Interactividad multimedia** y **envío de correos** integrado (workflows).
+`**Plataforma con autenticación** y **base de datos** para usuarios.
+**Interactividad multimedia** y **envío de correos** (workflows).
 Optimizada para captar registros y retención.`,
       extra: "_Credenciales demo: Correo: **centro@admin** · Contraseña: **admin**_"
     },
@@ -43,17 +43,17 @@ Optimizada para captar registros y retención.`,
       nombre: "Volservice",
       url: "https://centrodigitaldedis.wixsite.com/volservice",
       descr:
-`Sitio con **tienda online**, **experiencia interactiva/multimedia**.
-Blog orientado a **SEO orgánico** y **automatizaciones de correo**.
-Estructura pensada para posicionamiento e indexación.`,
+`Tienda online con **experiencia interactiva/multimedia**.
+Blog para **SEO orgánico** y **automatizaciones de correo**.
+Arquitectura para posicionamiento e indexación.`,
       extra: ""
     },
     {
       nombre: "Almaverde",
       url: "https://almaverde.com.co/",
       descr:
-`**Portafolio comercial** con secciones de proyectos, **captación de leads**,
-**envíos de correos** y **blog** con artículos para posicionamiento (SEO / indexación).`,
+`**Portafolio comercial** con proyectos, **captación de leads**,
+**envíos de correos** y **blog** para posicionamiento (SEO / indexación).`,
       extra: ""
     },
     {
@@ -61,104 +61,43 @@ Estructura pensada para posicionamiento e indexación.`,
       url: "https://premiumappscol.wixsite.com/inicio",
       descr:
 `Sitio de **apps premium** con **APKs gratuitas** por tiempo limitado.
-Arquitectura de contenidos preparada para escalado y conversión.`,
+Arquitectura preparada para escalado y conversión.`,
       extra: ""
     }
   ];
 
-  // ===== Portafolio: Bots (Servimil / Emilia)
+  // ===== Portafolio: Bots (Emilia / Servimil)
   const SERVIMIL = {
     nombre: "Emilia (Servimil)",
+    // Link que compartiste (puede que algunos navegadores no lo muestren por ser URL indirecta)
     img: "https://www.google.com/url?sa=i&url=https%3A%2F%2Fservimil.co%2F&psig=AOvVaw1T_CIc1DJ7FB3-M-Q3DqEW&ust=1756509440126000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCICNhbLSro8DFQAAAAAdAAAAABAE",
     phone: "573157019885",
     textoWapp: "Hola Emilia, quiero información",
     descr:
-`**Asistente conversacional** para atención al cliente en **WhatsApp**.
-- Responde **FAQs**, **califica leads** y **deriva a asesor** cuando aplica.
-- Puede **integrarse con CRM** (registro y seguimiento).
-- Diseñado para **disponibilidad 24/7** y **medición de conversión**.`
+`**Asistente conversacional** en **WhatsApp** para atención al cliente.
+- Responde **FAQs**, **califica leads** y **deriva a asesor**.
+- Integración con **CRM** (registro y seguimiento).
+- Disponible **24/7** con medición de conversión.`
   };
 
   // ===== Catálogo de servicios (descripciones)
   const KB = {
     overview:
 `### Portafolio de servicios
-Elige qué deseas ver:
+Selecciona qué deseas ver:
 
 <a href="#" data-q="Páginas web" style="${BTN}">🖥️ Páginas web + Portafolio</a>
-<a href="#" data-q="Bots y Asistentes IA" style="${BTN}">🤖 Bots + Portafolio</a>
-
-O explora servicios específicos:
-
-<a href="#" data-q="Branding" style="${BTN}">🎨 Branding</a>
-<a href="#" data-q="Contenido para redes" style="${BTN}">📱 Contenido para redes</a>
-<a href="#" data-q="Social Media Manager" style="${BTN}">👥 Social Media Manager</a>
-<a href="#" data-q="SEO" style="${BTN}">🔎 SEO</a>
-<a href="#" data-q="Campañas Ads" style="${BTN}">💡 Campañas Ads</a>
-<a href="#" data-q="Estrategias de marketing" style="${BTN}">📈 Estrategias de marketing</a>
-<a href="#" data-q="Fotografía de producto" style="${BTN}">📷 Fotografía de producto</a>
-<a href="#" data-q="Automatizaciones con IA" style="${BTN}">⚙️ Automatizaciones con IA</a>
-<a href="#" data-q="Contenido con IA" style="${BTN}">🎬 Contenido con IA</a>
-<a href="#" data-q="Embudos y Realidad Aumentada" style="${BTN}">🧭 Embudos & RA</a>
-<a href="#" data-q="Apps Premium" style="${BTN}">🟣 Apps Premium</a>
+<a href="#" data-q="Automatizaciones" style="${BTN}">⚙️ Automatizaciones + Bots</a>
+<a href="https://gold-snail-248674.hostingersite.com/chatbot.html" target="_blank" style="${BTN}">🆓 Crear agente gratis</a>
 <a href="#" data-q="Cotizar" style="${BTN}">💬 Cotizar ahora</a>
 ${CTA}`,
 
     web:
 `### Páginas web (moderno + conversión)
 - Diseño **responsive** (landing, multipágina, e-commerce)
-- **SEO técnico** y **Core Web Vitals**
+- **SEO técnico** y Core Web Vitals
 - Integración con **WhatsApp, CRM y analítica**
 - Optimización de **copy** y **estructura** para conversión
-${CTA}`,
-
-    branding:
-`### Branding y diseño de marca
-- **Identidad visual**, **logo** y **sistema de marca**
-- **Manual de marca** (uso, tipografía, color, aplicaciones)
-- Paquetes de **aplicaciones** (RRSS, papelería, ads)
-${CTA}`,
-
-    contenido:
-`### Contenido para redes
-- **Posts**, **carruseles** y **video corto** (Reels/TikTok/Shorts)
-- **Guion** + edición + **calendarización**
-- Métricas y optimización continua
-${CTA}`,
-
-    social:
-`### Social Media Manager
-- Gestión de **comunidad** y crecimiento orgánico
-- Estrategia por **plataforma** y frecuencia
-- Reporting y **mejora continua** por datos
-${CTA}`,
-
-    seo:
-`### SEO (web + social)
-- Auditoría técnica, on-page y contenidos
-- Estrategia de **keywords** + **blog** para SEO
-- Apoyo en **indexación** y **buenas prácticas**
-${CTA}`,
-
-    ads:
-`### Campañas publicitarias (Ads)
-- **Meta**, **Google** y **TikTok** Ads
-- Creativos, segmentación, **A/B testing**
-- Escalado por **ROAS** y objetivos
-${CTA}`,
-
-    marketing:
-`### Estrategias de marketing & funnels
-- Embudos (tráfico → lead → venta → fidelización)
-- **Automatizaciones** y nurture por etapas
-- **Dashboards** y KPIs de negocio
-${CTA}`,
-
-    fotografia:
-`### Fotografía de producto
-- Foto y **micro-video** comercial
-- Retoque y **formatos** por plataforma
-- Preparación para **catálogo** y **ads**
 ${CTA}`,
 
     auto_ia:
@@ -173,27 +112,6 @@ ${CTA}`,
 - Asistentes en **WhatsApp/IG/Messenger**
 - **Bots de llamadas** con traspaso a asesor
 - Calificación de **leads** + CRM
-${CTA}`,
-
-    contenido_ia:
-`### Contenido con IA (video e imagen)
-- Videos **publicitarios/explicativos/conceptuales**
-- Generación de **imágenes** y assets creativos
-- Producción híbrida **IA + edición** profesional
-${CTA}`,
-
-    embudos_ra:
-`### Embudos automatizados y Realidad Aumentada
-- Captura → **nurturing** → conversión con IA
-- Experiencias **AR** para promoción/retail
-- Medición y optimización
-${CTA}`,
-
-    apps_premium:
-`### Apps Premium
-- Licencias (VPN, YouTube Premium, PhotoRoom, etc.)
-- Gestión de **cuentas** y soporte a equipos
-- Onboarding y **buenas prácticas**
 ${CTA}`,
 
     cotiz:
@@ -217,7 +135,7 @@ ${CTA}`
     const text = encodeURIComponent(SERVIMIL.textoWapp);
     return `### Portafolio — Bots
 **${SERVIMIL.nombre}**
-<img src="${SERVIMIL.img}" alt="${SERVIMIL.nombre}" style="max-width:100%;border-radius:14px;opacity:.96;display:block;margin:8px 0;animation:fadeIn .6s ease both" />
+<img src="${SERVIMIL.img}" alt="${SERVIMIL.nombre}" style="max-width:100%;border-radius:14px;opacity:.96;display:block;margin:8px 0" />
 
 ${SERVIMIL.descr}
 
@@ -228,8 +146,9 @@ ${SERVIMIL.descr}
   function renderWebWithPortfolio(){
     return `${KB.web}\n\n${renderPortafolioWeb()}\n${CTA}`;
   }
-  function renderBotsWithPortfolio(){
-    return `${KB.bots_ia}\n\n${renderPortafolioBots()}\n${CTA}`;
+  function renderAutomatizacionesWithBots(){
+    // Al pedir "Automatizaciones" mostramos AUTOMATIZACIONES + BOTS + Portafolio (Emilia)
+    return `${KB.auto_ia}\n\n${KB.bots_ia}\n\n${renderPortafolioBots()}\n${CTA}`;
   }
 
   // ===== Render + Markdown
@@ -286,7 +205,7 @@ ${SERVIMIL.descr}
   function escapeHTML(s){return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
   function norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'').replace(/[^a-z0-9áéíóúñü\s]/g,' ').replace(/\s+/g,' ').trim();}
 
-  // ===== Delegación de eventos en el área de mensajes
+  // ===== Delegación de eventos dentro de mensajes (botones data-q del overview)
   msgs.addEventListener('click', (e) => {
     const el = e.target.closest('[data-q], a[data-q]');
     if (el) {
@@ -295,7 +214,7 @@ ${SERVIMIL.descr}
     }
   });
 
-  // ===== Chips (si existen en tu HTML)
+  // ===== Chips (los que ya tienes en el HTML)
   const chips = document.querySelector('.chips');
   if (chips) {
     chips.addEventListener('click', (e)=>{
@@ -319,18 +238,18 @@ ${SERVIMIL.descr}
       localStorage.removeItem(FLOW_KEY);
       msgs.innerHTML = ""; typing.style.display="none";
       flow = { activo:false, paso:0, datos:{nombre:"",servicios:"",empresa:"",telefono:""} };
-      botMsg("🧹 Historial limpio. ¿Vemos **Páginas web + Portafolio** o iniciamos **cotización**?");
+      botMsg("🧹 Historial limpio. ¿Vemos **Páginas web** o **Automatizaciones + Bots**?");
     });
   }
 
   // ===== Bienvenida
   restoreHistory();
   if (historyEmpty()) {
-    botMsg("👋 ¡Hola! Puedo mostrarte **Páginas web + Portafolio** o **Bots + Portafolio**, o iniciar **cotización**.");
+    botMsg("👋 ¡Hola! Tengo **Páginas web + Portafolio** y **Automatizaciones + Bots** listos para mostrar. También puedo **cotizar**.");
     botMsg(KB.overview);
   }
 
-  // ===== Voz (opcional, si tienes #mic)
+  // ===== Voz (auto-envía tras 1.5s de silencio, si tienes #mic)
   let rec = null, micActive = false;
   let voiceBuffer = "";
   let silenceTimer = null;
@@ -358,7 +277,7 @@ ${SERVIMIL.descr}
     function flushVoiceBuffer(){ if (silenceTimer){ clearTimeout(silenceTimer); silenceTimer=null; } const text=(input.value||voiceBuffer||'').trim(); if (!text) return; voiceBuffer=""; input.value=""; userMsg(text); route(text); }
   })();
 
-  // ===== Router (unificado: servicio + su portafolio)
+  // ===== Router
   function route(q){
     if (/^cancelar$/i.test(q.trim())) {
       if (flow.activo){
@@ -371,38 +290,26 @@ ${SERVIMIL.descr}
 
     const qn = norm(q);
 
-    // WEB: pedir páginas web o portafolio de webs muestra ambos (servicio + trabajos)
+    // CHIP: Páginas web → servicio + portafolio
     if (/(^|\b)(paginas web|p[aá]ginas web|webs|portafolio de webs|trabajos web|sitios)(\b|$)/.test(qn)) {
       return botMsg(renderWebWithPortfolio());
     }
 
-    // BOTS: pedir bots o portafolio de bots muestra ambos (servicio + trabajos)
-    if (/(^|\b)(bots y asistentes ia|bots|portafolio de bots|servimil|probar bot)(\b|$)/.test(qn)) {
-      return botMsg(renderBotsWithPortfolio());
+    // CHIP: Automatizaciones → automatizaciones + bots + portafolio (Emilia)
+    if (/(^|\b)(automatizaciones|manychat|make|bot|bots|asistentes ia)(\b|$)/.test(qn)) {
+      return botMsg(renderAutomatizacionesWithBots());
     }
 
-    // Resto de servicios (descripciones ya detalladas)
-    if (/branding|marca|logo|manual/.test(qn)) return botMsg(KB.branding);
-    if (/contenido.*red|reels|tiktok|shorts|posts?/.test(qn)) return botMsg(KB.contenido);
-    if (/social.*manager|smm|gesti[oó]n.*red/.test(qn)) return botMsg(KB.social);
-    if (/\bseo\b|posicionamiento/.test(qn)) return botMsg(KB.seo);
-    if (/ads|camp[aá]ñas|anuncios|google|meta|tiktok/.test(qn)) return botMsg(KB.ads);
-    if (/estrategias? de marketing|funnel|embudo|growth/.test(qn)) return botMsg(KB.marketing);
-    if (/foto|fotograf/.test(qn)) return botMsg(KB.fotografia);
+    // CHIP: Servicios / Portafolio general
+    if (/servicios|portafolio|cat[aá]logo|categor[ií]as|todo$/.test(qn)) return botMsg(KB.overview);
 
-    // IA
-    if (/automatizaciones?.*ia/.test(qn)) return botMsg(KB.auto_ia);
-    if (/contenido.*ia|video.*ia|imagen.*ia|audiovisual.*ia/.test(qn)) return botMsg(KB.contenido_ia);
-    if (/embudos?.*automatizados|realidad aumentada|ra\b/.test(qn)) return botMsg(KB.embudos_ra);
-    if (/apps?.*premium|vpn|youtube premium|photoroom/.test(qn)) return botMsg(KB.apps_premium);
-
-    // Accesos y cotización
+    // Cotización
     if (/cotiz|presupuesto|precio|cu[aá]nto vale|cu[aá]nto cuesta/.test(qn)) { startCotizacion(); return; }
-    if (/portafolio|servicios|cat[aá]logo|categor[ií]as|todo$/.test(qn)) return botMsg(KB.overview);
 
-    // Búsqueda difusa (contiene triggers unificados)
+    // Búsqueda difusa
     const hit = smallSearch(qn); if (hit) return botMsg(hit);
-    botMsg("Puedo mostrarte **Páginas web + Portafolio** o **Bots + Portafolio**, o iniciar **cotización**. " + CTA);
+
+    botMsg("Puedo mostrarte **Páginas web + Portafolio** o **Automatizaciones + Bots (Emilia)**, o iniciar **cotización**. " + CTA);
   }
 
   // ===== Flujo de Cotización
@@ -475,7 +382,7 @@ Para **continuar con la cotización**, por favor **toca uno de estos botones**:
     try { persistConversationToServer({ nombre, servicios, empresa, telefono }); } catch(e) { console.warn('No se pudo guardar conversación:', e); }
   }
 
-  // ===== Guardado en servidor (si tienes el PHP)
+  // ===== Guardado en servidor (si tienes el PHP en assets/save_conversation.php)
   function persistConversationToServer(lead){
     const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
     const payload = { when:new Date().toISOString(), page:location.href, userAgent:navigator.userAgent, lead, conversation: history };
@@ -486,24 +393,13 @@ Para **continuar con la cotización**, por favor **toca uno de estos botones**:
       .catch(err=>console.warn('Error guardando:',err));
   }
 
-  // ===== Búsqueda difusa (incluye triggers unificados)
+  // ===== Búsqueda difusa
   function smallSearch(q){
     const pairs = [
       [renderWebWithPortfolio(), ["paginas web","páginas web","webs","portafolio de webs","trabajos web","sitios"]],
-      [renderBotsWithPortfolio(), ["bots y asistentes ia","bots","portafolio de bots","servimil","probar bot","emilia"]],
-      [KB.branding,["branding","marca","logo","manual"]],
-      [KB.fotografia,["foto","fotografia","fotografía","producto"]],
-      [KB.contenido,["contenido","reels","tiktok","shorts","post","posts"]],
-      [KB.social,["social media","smm","gestion redes","gestión redes","community"]],
-      [KB.seo,["seo","posicionamiento"]],
-      [KB.ads,["ads","campañas","anuncios","google","meta","tiktok"]],
-      [KB.marketing,["marketing","funnel","embudo","growth","estrategia"]],
-      [KB.auto_ia,["automatizacion ia","automatización ia"]],
-      [KB.contenido_ia,["contenido ia","video ia","imagen ia"]],
-      [KB.embudos_ra,["embudos automatizados","realidad aumentada","ra"]],
-      [KB.apps_premium,["apps premium","vpn","youtube premium","photoroom"]],
+      [renderAutomatizacionesWithBots(), ["automatizaciones","manychat","make","bot","bots","asistentes ia","servimil","emilia"]],
       [KB.cotiz,["cotiz","presupuesto","precio","cuanto vale","cuánto vale","cuanto cuesta","cuánto cuesta"]],
-      [KB.overview,["portafolio","servicios","catalogo","catálogo","categorias","categorías","todo"]]
+      [KB.overview,["servicios","portafolio","catalogo","catálogo","categorias","categorías","todo"]]
     ];
     let best=null,score=0;
     pairs.forEach(([text,keys])=>{
