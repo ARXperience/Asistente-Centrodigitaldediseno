@@ -1,4 +1,4 @@
-// ================== bot.js ==================
+// ================== bot.js (voz sin repeticiones) ==================
 const msgs  = document.getElementById('messages');
 const input = document.getElementById('input');
 const send  = document.getElementById('send');
@@ -9,7 +9,7 @@ const talk  = document.getElementById('talk');
 const STORAGE_KEY = 'cdd_chat_history_v1';
 const FLOW_KEY    = 'cdd_quote_flow_state_v1';
 
-// Contacto oficial para cotización
+// Contacto oficial
 const OFICIAL_PHONE = "573202608864";
 const OFICIAL_MAIL  = "centrodigitaldediseno@gmail.com";
 
@@ -17,25 +17,25 @@ const CTA = `\n\n¿Quieres cotizar tu proyecto? ✨<br>
 Escribe <strong>cotizar</strong> o contáctanos:<br>
 📲 WhatsApp: +${OFICIAL_PHONE} · ✉️ ${OFICIAL_MAIL}`;
 
-// ===== Base de conocimiento =====
+// ===== Contenidos =====
 const KB = {
   servicios:
 `### Servicios principales
 1. <strong>Diseño web moderno y optimizado</strong> (landing, multipágina, e-commerce).<br>
-2. <strong>Branding & diseño de marca</strong> (logo, identidad, manual de marca).<br>
-3. <strong>Creación de contenido visual</strong> (posts, reels, videos cortos).<br>
-4. <strong>Marketing digital</strong> (campañas, funnels, anuncios en Meta/Google/TikTok).<br>
-5. <strong>Gestión de redes sociales</strong> (SMM, crecimiento orgánico).<br>
+2. <strong>Branding & diseño de marca</strong> (logo, identidad, manual).<br>
+3. <strong>Contenido visual</strong> (posts, reels, videos cortos).<br>
+4. <strong>Marketing digital</strong> (campañas, funnels, Meta/Google/TikTok).<br>
+5. <strong>Gestión de redes</strong> (SMM, crecimiento orgánico).<br>
 6. <strong>SEO</strong> (redes y web).<br>
-7. <strong>Fotografía de producto</strong> profesional.<br>
-8. <strong>Automatizaciones con IA</strong> (procesos, atención al cliente).<br>
-9. <strong>Videos con IA</strong> (conceptuales, publicitarios).<br>
-10. <strong>Generación de imágenes/AV con IA</strong>.<br>
-11. <strong>Bots de mensajes y llamadas</strong> (asistentes virtuales).<br>
+7. <strong>Fotografía de producto</strong>.<br>
+8. <strong>Automatizaciones con IA</strong>.<br>
+9. <strong>Videos con IA</strong>.<br>
+10. <strong>Imágenes/AV con IA</strong>.<br>
+11. <strong>Bots de mensajes y llamadas</strong>.<br>
 12. <strong>Embudos de ventas automatizados</strong>.<br>
-13. <strong>Realidad aumentada</strong> para negocios.<br>
-14. <strong>Plataforma de Apps Premium</strong> (VPN, YouTube Premium, PhotoRoom…).<br>
-15. <strong>Marketing con IA</strong> (análisis predictivo y personalización).${CTA}`,
+13. <strong>Realidad aumentada</strong>.<br>
+14. <strong>Apps Premium</strong> (VPN, YouTube Premium, PhotoRoom…).<br>
+15. <strong>Marketing con IA</strong> (predictivo, personalización).${CTA}`,
 
   web:
 `### Páginas web (moderno + conversión)
@@ -47,15 +47,15 @@ const KB = {
 <strong>Portafolio — Webs</strong><br>
 🔗 <a href="https://marketflix.com.co" target="_blank">Marketflix.com.co</a><br>
 <img src="assets/marketflix.png" width="260" alt="Marketflix"><br>
-Plataforma con autenticación, base de datos para usuarios, interactividad multimedia y envío de correos (workflows).<br><br>
+Plataforma con autenticación, base de datos, interactividad multimedia y envíos de correos (workflows).<br><br>
 
 🔗 <a href="https://centrodigitaldis.wixsite.com/volservice" target="_blank">Volservice</a><br>
 <img src="assets/volservice.png" width="260" alt="Volservice"><br>
-Sitio con tienda, blog para SEO orgánico, correos e indexación.<br><br>
+Tienda + blog para SEO orgánico, correos e indexación.<br><br>
 
 🔗 <a href="https://almaverde.com.co/" target="_blank">AlmaVerde.com.co</a><br>
-<img src="assets/almaverde.png" width="260" alt="Almaverde"><br>
-Portafolio comercial, proyectos, captación de leads, correos electrónicos, blog con artículos para posicionamiento SEO e indexación.<br><br>
+<img src="assets/almaverde.png" width="260" alt="AlmaVerde"><br>
+Portafolio comercial, proyectos, captación de leads, correos, blog con artículos para SEO e indexación.<br><br>
 
 🔗 <a href="https://premiumappscol.wixsite.com/inicio" target="_blank">Premium Apps</a><br>
 <img src="assets/premiumapps.png" width="260" alt="Premium Apps"><br>
@@ -65,9 +65,9 @@ Sitio de apps premium (en construcción), APKs gratuitas por tiempo limitado.${C
 `### Automatizaciones & Bots
 - <strong>ManyChat/WhatsApp</strong>: flujos, segmentación, campañas.<br>
 - <strong>Make</strong>: integra formularios, CRM, Google, Meta, Email.<br>
-- <strong>Bots de IA</strong> entrenados con tus textos/FAQs para calificar leads y derivar a humano.<br><br>
+- <strong>Bots de IA</strong> entrenados con tus textos/FAQs.<br><br>
 
-<strong>Ejemplo real — Bot “Emilia” (Servimil)</strong><br>
+<strong>Ejemplo — Bot “Emilia” (Servimil)</strong><br>
 <img src="assets/emilia.png" width="260" alt="Bot Emilia" style="border-radius:12px"><br>
 Asistente virtual que responde y guía clientes por WhatsApp.<br><br>
 
@@ -76,26 +76,21 @@ style="display:inline-block;background:#10a37f;color:#fff;text-decoration:none;p
 
   branding:
 `### Branding & diseño de marca
-- Identidad visual completa (logo, paleta, tipografías).<br>
-- Manual de marca y sistemas de uso.<br>
-- Kit para redes, presentaciones y piezas base.${CTA}`,
+- Identidad visual completa, manual de marca, kit para redes.${CTA}`,
 
   mktia:
 `### Marketing con IA
-- Segmentación y creatividades asistidas por IA.<br>
-- <strong>Analítica predictiva</strong> y personalización de campañas.<br>
-- Testing continuo y dashboards de KPIs.${CTA}`,
+- Segmentación y creatividades con IA, analítica predictiva, personalización.${CTA}`,
 
   cotiz:
 `### Cotización
-Trabajamos <strong>por alcance y objetivos</strong>. El valor depende de páginas, integraciones, contenido y automatizaciones.<br><br>
-<strong>Cómo cotizamos</strong><br>
+Trabajamos <strong>por alcance y objetivos</strong> (páginas, integraciones, contenido, automatizaciones).<br><br>
 1) Brief rápido + llamada de 15–20 min.<br>
 2) Propuesta con entregables, tiempos y valor.<br>
 3) Arranque del Sprint 1.${CTA}`
 };
 
-// ===== Estado del flujo de cotización =====
+// ===== Estado del flujo =====
 let flow = loadFlowState() || {activo:false,paso:0,datos:{nombre:"",servicios:"",empresa:"",telefono:""}};
 
 // ===== Inicio =====
@@ -136,14 +131,11 @@ function route(q){
   if (flow.activo) { handleCotizacion(q); return; }
   if (/cotiz/i.test(qn)) { startCotizacion(); return; }
 
-  // Servicios -> texto + botones
   if (/^servicio(s)?$|que hacen|ofrecen|todo/i.test(qn)){
     botMsg(KB.servicios);
     botMsg(servicesButtonsHTML());
     return;
   }
-
-  // Categorías
   if (/web|tienda|landing|site/i.test(qn)) { botMsg(KB.web); return; }
   if (/automat|bot|ia|whatsapp|manychat|make/i.test(qn)) { botMsg(KB.automat); return; }
   if (/branding/i.test(qn)) { botMsg(KB.branding); return; }
@@ -152,7 +144,7 @@ function route(q){
   botMsg("Puedo contarte sobre <strong>servicios</strong>, <strong>páginas web</strong>, <strong>automatizaciones</strong> o ayudarte a <strong>cotizar</strong>.");
 }
 
-// ===== Botones tipo “chips” dentro del mensaje de Servicios =====
+// Chips dentro del mensaje de Servicios
 function servicesButtonsHTML(){
   const style = "display:inline-block;margin:6px 8px 0 0;padding:8px 14px;border-radius:999px;border:1px solid #d0d7e2;text-decoration:none;color:inherit;background:#fff";
   return `
@@ -163,8 +155,6 @@ function servicesButtonsHTML(){
   <a href="#" class="chip-link" data-q="Marketing con IA" style="${style}">🤖 Marketing con IA</a>
 </div>`;
 }
-
-// Delegación de eventos para esos chips
 document.addEventListener("click", (e)=>{
   const a = e.target.closest(".chip-link");
   if (!a) return;
@@ -180,7 +170,6 @@ function startCotizacion(){
   saveFlowState();
   botMsg("Perfecto 🙌 Para cotizar necesito unos datos.<br>1️⃣ ¿Cuál es tu <strong>nombre completo</strong>?");
 }
-
 function handleCotizacion(txt){
   switch (flow.paso){
     case 1:
@@ -201,7 +190,6 @@ function handleCotizacion(txt){
       break;
   }
 }
-
 function finalizeQuote(){
   const {nombre,servicios,empresa,telefono} = flow.datos;
   const wapp = `https://wa.me/${OFICIAL_PHONE}?text=${encodeURIComponent(`Hola soy ${nombre} (${empresa}). Me interesa: ${servicios}. Mi contacto: ${telefono}`)}`;
@@ -240,103 +228,106 @@ function render(role, html){
   msgs.appendChild(row);
   requestAnimationFrame(()=>{ msgs.scrollTop = msgs.scrollHeight; });
 }
-
 function userMsg(t){ render("user", escapeHTML(t)); }
 function botMsg(t){ render("assistant", t); }
 
 // ===== Utils =====
 function escapeHTML(s){return (s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
 function norm(s){ return (s||'').toLowerCase().trim(); }
-
-// ===== Persistencia mínima del flujo =====
 function saveFlowState(){ localStorage.setItem(FLOW_KEY, JSON.stringify(flow)); }
 function loadFlowState(){ try{ return JSON.parse(localStorage.getItem(FLOW_KEY)||"null"); } catch { return null; } }
 
-// ===== Voz (dictado) corregido: sin repeticiones y auto-envío tras 1.5s =====
+// ============ VOZ — anti-repeticiones ============
+// Estado del dictado
 let recognition;
-let dict = {
+const vr = {
   running: false,
-  finalText: "",
-  timer: null,
-  seen: new Set() // evita duplicados de resultados re-emitidos
+  committed: "",   // texto final confirmado
+  lastInterim: "", // último interim mostrado para no repetir
+  timer: null
 };
 
-// Devuelve base + la parte nueva de "addition" sin repetir prefijos ya dichos
-function appendDelta(base, addition) {
-  const b = base.trim();
-  const a = addition.trim();
+// Une dos cadenas evitando duplicar la parte solapada
+function overlapAppend(base, next){
+  const b = (base||"").trim();
+  const a = (next||"").trim();
   if (!b) return a;
   const max = Math.min(b.length, a.length);
-  for (let k = max; k > 0; k--) {
-    if (b.slice(-k) === a.slice(0, k)) {
-      return (b + a.slice(k)).replace(/\s+/g, ' ').trim();
+  for (let k = max; k > 0; k--){
+    if (b.slice(-k) === a.slice(0,k)){
+      return (b + a.slice(k)).replace(/\s+/g,' ').trim();
     }
   }
-  return (b + " " + a).replace(/\s+/g, ' ').trim();
+  return (b + " " + a).replace(/\s+/g,' ').trim();
 }
 
-function resetSilenceTimer() {
-  clearTimeout(dict.timer);
-  dict.timer = setTimeout(() => {
-    if (!dict.running) return;
-    const textToSend = (input.value || dict.finalText || "").trim();
-    if (textToSend) {
+function resetSilenceTimer(){
+  clearTimeout(vr.timer);
+  vr.timer = setTimeout(()=>{
+    if (!vr.running) return;
+    const toSend = (input.value || vr.committed || "").trim();
+    if (toSend){
       try { recognition.stop(); } catch {}
-      dict.running = false;
+      vr.running = false;
       send.click();
     }
   }, 1500);
 }
 
-if ('webkitSpeechRecognition' in window) {
+if ('webkitSpeechRecognition' in window){
   recognition = new webkitSpeechRecognition();
   recognition.lang = "es-ES";
   recognition.continuous = true;
   recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
 
   recognition.onstart = () => {
-    dict.running = true;
-    dict.finalText = "";
-    dict.seen.clear();
-    clearTimeout(dict.timer);
+    vr.running   = true;
+    vr.committed = "";
+    vr.lastInterim = "";
+    input.value  = "";                // limpiamos la caja
+    clearTimeout(vr.timer);
     botMsg("🎤 Estoy escuchando; cuando haya 1.5 s sin voz enviaré tu mensaje automáticamente.");
   };
 
   recognition.onresult = (e) => {
-    let interim = dict.finalText;
-    for (let i = e.resultIndex; i < e.results.length; i++) {
+    for (let i = e.resultIndex; i < e.results.length; i++){
       const r = e.results[i];
-      const t = (r[0]?.transcript || "").replace(/\s+/g, " ").trim();
-      const key = `${i}:${r.isFinal}:${t}`;
-      if (!t || dict.seen.has(key)) continue;
-      dict.seen.add(key);
+      const t = (r[0]?.transcript || "").replace(/\s+/g,' ').trim();
+      if (!t) continue;
 
-      if (r.isFinal) {
-        dict.finalText = appendDelta(dict.finalText, t);
-        input.value = dict.finalText;
+      if (r.isFinal){
+        // Muchos motores reenvían texto acumulado: unimos con solape
+        if (!vr.committed){
+          vr.committed = t;
+        } else if (t.startsWith(vr.committed)){
+          vr.committed = t;                    // es acumulativo → reemplaza
+        } else if (!vr.committed.endsWith(t)){
+          vr.committed = overlapAppend(vr.committed, t);
+        }
+        input.value = vr.committed;
+        vr.lastInterim = "";
       } else {
-        interim = appendDelta(dict.finalText, t);
-        input.value = interim;
+        // Interim: mostrar SOLO el snapshot actual (sin concatenar entre sí)
+        if (t !== vr.lastInterim){
+          let visible = t.startsWith(vr.committed) ? t : overlapAppend(vr.committed, t);
+          input.value = visible;
+          vr.lastInterim = t;
+        }
       }
     }
     resetSilenceTimer();
   };
 
-  recognition.onerror = () => {
-    clearTimeout(dict.timer);
-    dict.running = false;
-  };
-  recognition.onend = () => {
-    clearTimeout(dict.timer);
-    dict.running = false;
-  };
+  recognition.onerror = () => { clearTimeout(vr.timer); vr.running = false; };
+  recognition.onend    = () => { clearTimeout(vr.timer); vr.running = false; };
 }
 
-if (talk && recognition) {
-  talk.addEventListener('click', () => {
-    if (dict.running) {
+if (talk && recognition){
+  talk.addEventListener('click', ()=>{
+    if (vr.running){
       try { recognition.stop(); } catch {}
-      dict.running = false;
+      vr.running = false;
       talk.textContent = 'Hablar';
     } else {
       try { recognition.start(); } catch {}
